@@ -4,8 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0b1220" />
-  <title>TJ Fitness — August 2026</title>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="TJ Fitness" />
+  <title>TJ Fitness — August 2026 Plan</title>
   <style>
     :root {
       --bg: #07101e;
@@ -311,6 +313,110 @@
       .warmup-fields { grid-template-columns:1fr; }
       .data-grid { grid-template-columns:1fr; }
     }
+
+
+    .nav-icon { display:none; font-size:1.12rem; line-height:1; }
+    .goal-progress { margin-top:14px; }
+    .goal-progress-top { display:flex; justify-content:space-between; gap:10px; color:#cfe1f5; font-size:.82rem; }
+    .progress-track { height:10px; margin:8px 0 6px; border-radius:999px; background:#07101e; border:1px solid var(--line); overflow:hidden; }
+    .progress-track span { display:block; width:0; height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--blue),var(--green)); transition:width .25s ease; }
+    .goal-progress small { color:var(--muted); }
+    .target-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+    .target-card { padding:15px; }
+    .target-card .target-exercise { color:var(--muted); font-size:.75rem; font-weight:850; text-transform:uppercase; letter-spacing:.06em; }
+    .target-card strong { display:block; font-size:1.32rem; margin-top:7px; }
+    .target-card small { display:block; color:var(--muted); margin-top:5px; line-height:1.35; }
+    .history-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px; }
+    .history-stat { padding:15px; }
+    .history-stat span { color:var(--muted); font-size:.75rem; font-weight:850; text-transform:uppercase; letter-spacing:.06em; }
+    .history-stat strong { display:block; margin-top:5px; font-size:1.35rem; }
+    .history-list { display:grid; gap:12px; }
+    .history-card { padding:17px; }
+    .history-top { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; }
+    .history-card h4 { margin:4px 0 5px; font-size:1.05rem; }
+    .history-card p { margin:0; color:var(--muted); line-height:1.45; }
+    .history-details { display:grid; gap:6px; margin-top:12px; }
+    .history-detail { display:flex; justify-content:space-between; gap:12px; padding:8px 10px; background:rgba(7,16,30,.38); border:1px solid rgba(255,255,255,.05); border-radius:10px; }
+    .history-detail span:last-child { color:#cfe1f5; text-align:right; }
+    .week-goal-grid { display:grid; grid-template-columns:1.4fr .65fr .65fr; gap:8px; margin-top:12px; }
+
+    @media (max-width: 1100px) {
+      .target-grid { grid-template-columns:repeat(3,1fr); }
+    }
+
+    @media (max-width: 720px) {
+      body { padding-bottom:calc(76px + env(safe-area-inset-bottom)); overflow-x:hidden; }
+      .app-shell { padding-bottom:22px; }
+      .topbar { position:relative; top:auto; margin-bottom:10px; }
+      .brand { width:100%; }
+      .nav {
+        position:fixed; left:0; right:0; bottom:0; z-index:90;
+        display:grid; grid-template-columns:repeat(6,1fr); gap:0; width:100%;
+        padding:7px 5px calc(7px + env(safe-area-inset-bottom));
+        background:rgba(7,16,30,.96); border-top:1px solid rgba(255,255,255,.10);
+        backdrop-filter:blur(18px); box-shadow:0 -12px 35px rgba(0,0,0,.32);
+      }
+      .nav button { min-width:0; padding:5px 1px; border-radius:10px; font-size:.64rem; display:flex; flex-direction:column; align-items:center; gap:3px; }
+      .nav-icon { display:block; }
+      button, .btn, input:not([type='checkbox']):not([type='range']), select { min-height:44px; }
+      input, select, textarea { font-size:16px; }
+      .hero { gap:10px; }
+      .hero h2 { font-size:2rem; }
+      .hero-actions .btn { flex:1; }
+      .kpis { gap:7px; }
+      .kpi { padding:12px 10px; }
+      .kpi strong { font-size:1.13rem; }
+      .section-head { align-items:flex-start; }
+      .calendar-grid, .weekdays { gap:3px; }
+      .day-cell { min-height:76px; padding:5px 4px; }
+      .day-focus { margin-top:5px; }
+      .day-meta .pill:nth-child(n+3) { display:none; }
+      .pill { font-size:.57rem; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .target-grid, .history-stats { grid-template-columns:repeat(2,1fr); }
+      .target-card, .history-stat { padding:12px; }
+      .week-dates { grid-template-columns:repeat(2,1fr); }
+      .week-goal-grid { grid-template-columns:1fr; }
+      .date-row { position:sticky; top:6px; z-index:20; background:var(--panel); padding:6px; border-radius:13px; }
+      .date-row input { width:100%; }
+      .sets-table { min-width:0; width:100%; }
+      .sets-table thead { display:none; }
+      .sets-table tbody { display:grid; gap:10px; }
+      .sets-table tr { position:relative; display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:12px; border:1px solid var(--line); border-radius:13px; background:rgba(7,16,30,.38); }
+      .sets-table td { display:flex; flex-direction:column; gap:4px; padding:0; border:0; min-width:0; }
+      .sets-table td::before { color:var(--muted); font-size:.65rem; font-weight:850; text-transform:uppercase; letter-spacing:.05em; }
+      .sets-table td:nth-child(1)::before { content:'Set'; }
+      .sets-table td:nth-child(2)::before { content:'Weight'; }
+      .sets-table td:nth-child(3)::before { content:'Reps'; }
+      .sets-table td:nth-child(4)::before { content:'Warm-up'; }
+      .sets-table td:nth-child(5)::before { content:'Failure'; }
+      .sets-table td:nth-child(6)::before { content:'Notes'; }
+      .sets-table td:nth-child(1) { grid-column:1/-1; }
+      .sets-table td:nth-child(6) { grid-column:1/-1; }
+      .sets-table td:nth-child(7) { position:absolute; top:7px; right:7px; }
+      .sets-table td:nth-child(7)::before { display:none; }
+      .sets-table input[type='number'], .sets-table input[type='text'], .sets-table td:nth-child(6) input { width:100%; min-width:0; }
+      .sets-table .checkcell { align-items:flex-start; }
+      .sets-table input[type='checkbox'] { width:25px; height:25px; }
+      .exercise-body { overflow:visible; padding:10px; }
+      .exercise-actions .btn { flex:1 1 calc(50% - 7px); }
+      .complete-row { position:sticky; bottom:calc(69px + env(safe-area-inset-bottom)); z-index:25; margin:14px -9px -9px; padding:10px; border:1px solid var(--line); border-radius:14px; background:rgba(13,24,40,.96); backdrop-filter:blur(14px); }
+      .complete-row .btn { flex:1; }
+      .complete-row .toggle-row { width:100%; }
+      .data-actions .btn { flex:1; }
+      table.data { min-width:580px; }
+      .history-top { flex-direction:column; gap:5px; }
+      .history-detail { flex-direction:column; gap:3px; }
+      .history-detail span:last-child { text-align:left; }
+    }
+
+    @media (max-width: 390px) {
+      .kpis, .target-grid, .history-stats { grid-template-columns:1fr 1fr; }
+      .calendar-card { padding:6px; }
+      .day-cell { min-height:70px; }
+      .day-number { font-size:.82rem; }
+      .day-focus { font-size:.58rem; }
+    }
+
   </style>
 </head>
 <body>
@@ -318,14 +424,15 @@
     <header class="topbar">
       <div class="brand">
         <div class="brand-mark">TJ</div>
-        <div><h1>TJ Fitness</h1><small>August 2026 · Fresh Start</small></div>
+        <div><h1>TJ Fitness</h1><small>August 2026 · My Plan</small></div>
       </div>
       <nav class="nav" aria-label="Main navigation">
-        <button data-view="month" class="active">Month</button>
-        <button data-view="week">Week</button>
-        <button data-view="day">Day</button>
-        <button data-view="progress">Progress</button>
-        <button data-view="data">Data</button>
+        <button data-view="month" class="active"><span class="nav-icon">▦</span><span>Month</span></button>
+        <button data-view="week"><span class="nav-icon">▤</span><span>Week</span></button>
+        <button data-view="day"><span class="nav-icon">＋</span><span>Day</span></button>
+        <button data-view="progress"><span class="nav-icon">↗</span><span>Progress</span></button>
+        <button data-view="history"><span class="nav-icon">◷</span><span>History</span></button>
+        <button data-view="data"><span class="nav-icon">⇩</span><span>Data</span></button>
       </nav>
     </header>
 
@@ -334,8 +441,8 @@
         <div class="hero">
           <article class="card hero-main">
             <div class="eyebrow">August 2026</div>
-            <h2>Build the month one day at a time.</h2>
-            <p>This copy starts blank. Tap any date to add a workout, warm-up, weigh-in, readiness check, or daily goal.</p>
+            <h2>August: consistency over perfection.</h2>
+            <p>Your August calendar starts blank, while your April–July workouts, PRs, and weight progress are already loaded. Tap any August date to begin.</p>
             <div class="hero-actions">
               <button id="startTodayBtn" class="btn primary">Open Today</button>
               <button id="openAug1Btn" class="btn">Open August 1</button>
@@ -343,17 +450,22 @@
           </article>
           <article class="card goal-card">
             <div class="section-head"><div><div class="eyebrow">Monthly Goal</div><h3>What matters most this month?</h3></div></div>
-            <textarea id="monthlyHeadline" placeholder="Example: Train 3 days each week and reach 250 lb."></textarea>
+            <textarea id="monthlyHeadline" placeholder="Example: Train 3 days each week and reach 240 lb."></textarea>
+            <div class="goal-progress">
+              <div class="goal-progress-top"><span id="goalCurrentText">250.8 lb current</span><strong id="goalTargetText">240 lb August goal</strong></div>
+              <div class="progress-track"><span id="goalProgressBar"></span></div>
+              <small id="goalProgressText">10.8 lb to August goal · Long-term goal 225 lb</small>
+            </div>
             <button id="saveMonthlyGoalBtn" class="btn small success" style="margin-top:10px">Save Goal</button>
           </article>
         </div>
 
         <div class="kpis">
           <article class="card kpi"><span class="label">Workouts</span><strong id="kpiWorkouts">0</strong><small id="kpiWorkoutGoal">No goal set</small></article>
-          <article class="card kpi"><span class="label">Cardio</span><strong id="kpiCardio">0.00 mi</strong><small id="kpiCardioGoal">No goal set</small></article>
+          <article class="card kpi"><span class="label">Cardio</span><strong id="kpiCardio">0 min</strong><small id="kpiCardioGoal">Goal: 240 min</small></article>
           <article class="card kpi"><span class="label">Lifting Sets</span><strong id="kpiSets">0</strong><small>Completed sets</small></article>
-          <article class="card kpi"><span class="label">PRs</span><strong id="kpiPRs">0</strong><small>Estimated strength PRs</small></article>
-          <article class="card kpi"><span class="label">Latest Weight</span><strong id="kpiWeight">—</strong><small>Goal: 225 lb</small></article>
+          <article class="card kpi"><span class="label">August PRs</span><strong id="kpiPRs">0</strong><small>New records this month</small></article>
+          <article class="card kpi"><span class="label">Latest Weight</span><strong id="kpiWeight">250.8 lb</strong><small>August: 240 · Long-term: 225</small></article>
           <article class="card kpi"><span class="label">Readiness</span><strong id="kpiReadiness">—</strong><small>Monthly average</small></article>
         </div>
 
@@ -366,6 +478,11 @@
             <div class="weekdays"><div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div></div>
             <div id="calendarGrid" class="calendar-grid"></div>
           </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head"><div><h3>August Strength Targets</h3><p>Realistic goals based on your July baselines.</p></div></div>
+          <div id="strengthTargetGrid" class="target-grid"></div>
         </section>
       </section>
 
@@ -409,16 +526,16 @@
 
           <div class="daily-main">
             <article class="card panel">
-              <div class="section-head"><div><h3>Optional Warm-Up</h3><p>Track it separately from lifting.</p></div><label class="toggle-row"><input id="warmupEnabled" type="checkbox" /> Add warm-up</label></div>
+              <div class="section-head"><div><h3>Cardio / Optional Warm-Up</h3><p>Minutes count toward your weekly cardio goal.</p></div><label class="toggle-row"><input id="warmupEnabled" type="checkbox" /> Add cardio</label></div>
               <div id="warmupFields" class="warmup-fields hidden">
-                <label class="field"><span>Type</span><select id="warmupType"><option>Walk</option><option>Treadmill</option><option>Bike</option><option>Elliptical</option><option>Row</option><option>Dynamic warm-up</option><option>Other</option></select></label>
+                <label class="field"><span>Type</span><select id="warmupType"><option>Walk</option><option>Treadmill</option><option>Bike</option><option>Elliptical</option><option>Row</option><option>Dynamic warm-up</option><option>Cooldown walk</option><option>Other</option></select></label>
                 <label class="field"><span>Minutes</span><input id="warmupMinutes" type="number" min="0" step="1" placeholder="10" /></label>
                 <label class="field"><span>Distance (mi)</span><input id="warmupDistance" type="number" min="0" step="0.01" placeholder="0.50" /></label>
               </div>
             </article>
 
             <article class="card panel">
-              <div class="section-head"><div><h3>Workout Builder</h3><p>Pick a focus, load a suggested workout, or add exercises one at a time.</p></div></div>
+              <div class="section-head"><div><h3>Workout Builder</h3><p>Choose one of your three splits, load its suggested exercises, or add exercises one at a time.</p></div></div>
               <div class="builder-row">
                 <label class="field"><span>Workout focus</span><select id="workoutFocus"></select></label>
                 <label class="field"><span>Exercise</span><select id="exerciseSelect"></select></label>
@@ -447,14 +564,15 @@
       <section id="view-progress" class="view">
         <div class="progress-grid">
           <article class="card panel">
-            <div class="section-head"><div><h3>Weight Progress</h3><p>August entries only in this blank copy.</p></div></div>
+            <div class="section-head"><div><h3>Weight Progress</h3><p>Your full June–August trend, with both goals shown.</p></div></div>
             <div id="weightChart" class="chart"></div>
           </article>
           <article class="card panel">
             <div class="section-head"><div><h3>Monthly Goals</h3><p>Editable targets for August.</p></div></div>
             <label class="field"><span>Workout goal</span><input id="monthlyWorkoutGoal" type="number" min="0" placeholder="12" /></label>
-            <label class="field"><span>Cardio miles goal</span><input id="monthlyCardioGoal" type="number" min="0" step="0.1" placeholder="10" /></label>
-            <label class="field"><span>Goal weight</span><input id="goalWeight" type="number" min="100" max="500" step="0.1" value="225" /></label>
+            <label class="field"><span>Cardio minutes goal</span><input id="monthlyCardioGoal" type="number" min="0" step="5" placeholder="240" /></label>
+            <label class="field"><span>August 31 goal weight</span><input id="augustGoalWeight" type="number" min="100" max="500" step="0.1" value="240" /></label>
+            <label class="field"><span>Long-term goal weight</span><input id="goalWeight" type="number" min="100" max="500" step="0.1" value="225" /></label>
             <label class="field"><span>Custom target</span><input id="monthlyCustomGoal" placeholder="Example: Train legs every week" /></label>
             <button id="saveGoalNumbersBtn" class="btn success" style="margin-top:12px">Save Monthly Goals</button>
           </article>
@@ -466,16 +584,23 @@
         </section>
 
         <section class="section">
-          <div class="section-head"><div><h3>Weigh-Ins</h3><p>Edit any date from the Daily view.</p></div></div>
-          <article class="card panel table-wrap"><table class="data"><thead><tr><th>Date</th><th>Weight</th><th>Change</th><th>To 225</th></tr></thead><tbody id="weightTableBody"></tbody></table></article>
+          <div class="section-head"><div><h3>Weigh-Ins</h3><p>Earlier entries are preserved; August weigh-ins are added from Daily view.</p></div></div>
+          <article class="card panel table-wrap"><table class="data"><thead><tr><th>Date</th><th>Weight</th><th>Change</th><th>To August Goal</th></tr></thead><tbody id="weightTableBody"></tbody></table></article>
         </section>
+      </section>
+
+
+      <section id="view-history" class="view">
+        <div class="section-head"><div><h3>Workout History</h3><p>Your logged sessions from April through July, including full July set details where available.</p></div></div>
+        <div id="historyStats" class="history-stats"></div>
+        <div id="historyList" class="history-list"></div>
       </section>
 
       <section id="view-data" class="view">
         <div class="data-grid">
           <article class="card panel">
             <h3>Spreadsheet Export</h3>
-            <p class="notice">Exports August goals, daily logs, exercises, sets, weigh-ins, and PRs into an Excel workbook you can upload back into ChatGPT.</p>
+            <p class="notice">Exports August goals, daily logs, exercises, sets, full weigh-in history, workout history, and PRs into an Excel workbook you can upload back into ChatGPT.</p>
             <div class="data-actions"><button id="exportExcelBtn" class="btn primary">Download Excel</button><button id="importExcelBtn" class="btn">Import Excel</button><input id="excelFileInput" type="file" accept=".xlsx,.xls" class="hidden" /></div>
           </article>
           <article class="card panel">
@@ -485,8 +610,8 @@
           </article>
           <article class="card panel">
             <h3>Storage</h3>
-            <p class="notice">Your entries save automatically in this browser. Export a backup before clearing browser data or switching devices.</p>
-            <button id="resetAugustBtn" class="btn danger">Reset Blank August</button>
+            <p class="notice">Your August entries save automatically in this browser. Your built-in history and goals stay in the file itself. Export a backup before clearing browser data or switching devices.</p>
+            <button id="resetAugustBtn" class="btn danger">Reset August Entries</button>
           </article>
           <article class="card panel">
             <h3>August Status</h3>
@@ -503,7 +628,7 @@
 (() => {
   'use strict';
 
-  const STORAGE_KEY = 'tjFitnessAugust2026_v1';
+  const STORAGE_KEY = 'tjFitnessAugust2026_v2';
   const MONTH_PREFIX = '2026-08';
   const AUG_START = '2026-08-01';
   const AUG_END = '2026-08-31';
@@ -511,25 +636,19 @@
   const feelingOptions = ['Low sleep','Sore','Stressed','Busy','Feeling strong','High energy','Pain / discomfort'];
 
   const exerciseLibrary = {
-    'Chest': ['Bench Press','Incline Bench Press','Dumbbell Chest Press','Star Trac Chest Press','Star Trac Incline Press','Cable Fly','Pec Deck','Push-Ups','Dips'],
-    'Back': ['Lat Pulldown','Cable Row','Dumbbell Row','Machine Row','Pull-Ups','Deadlift','Romanian Deadlift','Face Pull','Lower Back Machine'],
-    'Shoulders': ['Dumbbell Shoulder Press','Machine Shoulder Press','Dumbbell Lateral Raise','Cable Lateral Raise','Bent-Over Rear-Delt Raise','Reverse Pec Deck','Cable Face Pull','Front Raise','Shrugs'],
-    'Legs': ['Back Squat','Goblet Squat','Leg Press','Leg Extension','Leg Curl','Romanian Deadlift','Walking Lunges','Calf Raise','Hip Thrust'],
-    'Arms': ['Dumbbell Bicep Curl','Hammer Curl','Preacher Curl','Cable Curl','Rope Pushdown','Overhead Rope Triceps Extension','Skull Crushers','Dips'],
+    'Chest + Triceps': ['Bench Press','Incline Bench Press','Dumbbell Chest Press','Star Trac Chest Press','Star Trac Incline Press','Cable Fly (per side)','Cable Fly','Pec Deck','Push-Ups','Dips','Rope Pushdown','Overhead Rope Triceps Extension','Skull Crushers'],
+    'Back + Biceps': ['Lat Pulldown','Cable Row','Dumbbell Row','Machine Row','Pull-Ups','Deadlift','Romanian Deadlift','Cable Face Pull','Lower Back Machine','Dumbbell Bicep Curl','Hammer Curl','Preacher Curl','Cable Curl'],
+    'Shoulders + Legs': ['Dumbbell Shoulder Press','Machine Shoulder Press','Dumbbell Lateral Raise','Cable Lateral Raise','Bent-Over DB Rear-Delt Raise','Reverse Pec Deck','Cable Face Pull','Front Raise','Shrugs','Back Squat','Goblet Squat','Leg Press','Leg Extension','Leg Curl','Romanian Deadlift','Walking Lunges','Calf Raise','Hip Thrust'],
     'Core': ['Plank','Sit-Ups','Crunch Machine','Leg Raises','Dead Bug','Bird Dog','Russian Twist','Mountain Climbers'],
-    'Full Body': ['Goblet Squat','Dumbbell Chest Press','Lat Pulldown','Dumbbell Shoulder Press','Romanian Deadlift','Plank'],
     'Cardio': ['Treadmill','Outdoor Walk','Bike','Elliptical','Rowing Machine','Stair Climber'],
     'Recovery / Rest': ['Mobility','Stretching','Easy Walk','Foam Rolling']
   };
 
   const workoutTemplates = {
-    'Chest': ['Bench Press','Incline Bench Press','Cable Fly','Rope Pushdown','Overhead Rope Triceps Extension'],
-    'Back': ['Lat Pulldown','Cable Row','Dumbbell Row','Face Pull','Dumbbell Bicep Curl'],
-    'Shoulders': ['Dumbbell Shoulder Press','Dumbbell Lateral Raise','Bent-Over Rear-Delt Raise','Cable Face Pull'],
-    'Legs': ['Leg Press','Leg Curl','Leg Extension','Romanian Deadlift','Calf Raise'],
-    'Arms': ['Dumbbell Bicep Curl','Hammer Curl','Rope Pushdown','Overhead Rope Triceps Extension'],
+    'Chest + Triceps': ['Star Trac Chest Press','Cable Fly (per side)','Star Trac Incline Press','Rope Pushdown','Overhead Rope Triceps Extension'],
+    'Back + Biceps': ['Lat Pulldown','Cable Row','Dumbbell Bicep Curl','Hammer Curl','Lower Back Machine'],
+    'Shoulders + Legs': ['Dumbbell Shoulder Press','Dumbbell Lateral Raise','Bent-Over DB Rear-Delt Raise','Leg Press','Leg Curl','Calf Raise'],
     'Core': ['Plank','Sit-Ups','Leg Raises','Dead Bug'],
-    'Full Body': ['Goblet Squat','Dumbbell Chest Press','Lat Pulldown','Dumbbell Shoulder Press','Plank'],
     'Cardio': ['Treadmill'],
     'Recovery / Rest': ['Mobility','Stretching']
   };
@@ -553,11 +672,20 @@
 
   function defaultState() {
     return {
-      version: 1,
+      version: 2,
       month: MONTH_PREFIX,
-      settings: { goalWeight: 225 },
-      monthlyGoals: { headline: '', workouts: '', cardioMiles: '', custom: '' },
-      weeklyGoals: {},
+      settings: { goalWeight: 225, augustGoalWeight: 240, augustStartWeight: 250.8 },
+      monthlyGoals: {
+        headline: 'Reach 240 lb while completing 13 lifting sessions and 4 hours of cardio.',
+        workouts: 13,
+        cardioMinutes: 240,
+        custom: 'Flexible schedule: Chest + Triceps, Back + Biceps, and Shoulders + Legs.'
+      },
+      weeklyGoals: {"2026-08-01":{"headline":"Set up the month","workouts":0,"cardioMinutes":0,"custom":"Optional weigh-in and planning day"},"2026-08-02":{"headline":"Complete all three splits","workouts":3,"cardioMinutes":60,"custom":"Chest + Triceps \u00b7 Back + Biceps \u00b7 Shoulders + Legs"},"2026-08-09":{"headline":"Build consistency","workouts":3,"cardioMinutes":60,"custom":"Beat reps on at least one main lift"},"2026-08-16":{"headline":"Stay balanced","workouts":3,"cardioMinutes":60,"custom":"Do not skip legs or cardio"},"2026-08-23":{"headline":"Finish the full rotation","workouts":3,"cardioMinutes":60,"custom":"Keep form clean as weights increase"},"2026-08-30":{"headline":"Finish and review","workouts":1,"cardioMinutes":0,"custom":"Final weigh-in and August recap"}},
+      strengthTargets: [{"exercise":"Star Trac Chest Press","target":"145 \u00d7 12","note":"Add two clean reps before moving up the stack."},{"exercise":"Dumbbell Shoulder Press","target":"40 \u00d7 10","note":"Per dumbbell; stop one rep before failure until the final set."},{"exercise":"Lat Pulldown","target":"110 \u00d7 10","note":"Controlled stretch and no swinging."},{"exercise":"Cable Row","target":"110 \u00d7 10","note":"Keep the same torso position on every rep."},{"exercise":"Leg Training","target":"Set baselines","note":"Record clean starting numbers, then beat reps before month-end."}],
+      historyWeight: [{"date":"2026-06-03","weight":270.0},{"date":"2026-07-06","weight":255.0},{"date":"2026-07-09","weight":253.7},{"date":"2026-07-31","weight":250.8}],
+      historicalPRs: [{"exercise":"Push-Ups","display":"15 reps","weight":0,"reps":15,"date":"2026-04-29","oneRM":null,"sixRM":null,"category":"Bodyweight"},{"exercise":"Push-Up Volume","display":"100 reps / 23:30","weight":0,"reps":100,"date":"2026-07-05","oneRM":null,"sixRM":null,"category":"Bodyweight"},{"exercise":"Squats","display":"30 reps","weight":0,"reps":30,"date":"2026-04-29","oneRM":null,"sixRM":null,"category":"Bodyweight"},{"exercise":"Plank","display":"40 sec","weight":0,"reps":40,"date":"2026-04-29","oneRM":null,"sixRM":null,"category":"Core"},{"exercise":"Sit-Ups","display":"10 reps","weight":0,"reps":10,"date":"2026-05-22","oneRM":null,"sixRM":null,"category":"Core"},{"exercise":"Longest Walk","display":"2.00 miles","weight":0,"reps":0,"date":"2026-05-03","oneRM":null,"sixRM":null,"category":"Cardio"},{"exercise":"Lower Back Machine","display":"110 \u00d7 12","weight":110,"reps":12,"date":"2026-07-05","oneRM":154,"sixRM":128,"category":"Back + Biceps"},{"exercise":"Lat Pulldown","display":"100 \u00d7 12","weight":100,"reps":12,"date":"2026-07-05","oneRM":140,"sixRM":117,"category":"Back + Biceps"},{"exercise":"Cable Row","display":"100 \u00d7 10","weight":100,"reps":10,"date":"2026-07-05","oneRM":133.33,"sixRM":111,"category":"Back + Biceps"},{"exercise":"Dumbbell Bicep Curl","display":"25 \u00d7 10","weight":25,"reps":10,"date":"2026-07-05","oneRM":33.33,"sixRM":28,"category":"Back + Biceps"},{"exercise":"Hammer Curl","display":"20 \u00d7 10","weight":20,"reps":10,"date":"2026-07-05","oneRM":26.67,"sixRM":22,"category":"Back + Biceps"},{"exercise":"Star Trac Chest Press","display":"145 \u00d7 10","weight":145,"reps":10,"date":"2026-07-06","oneRM":193.33,"sixRM":161,"category":"Chest + Triceps"},{"exercise":"Cable Fly (per side)","display":"25 \u00d7 12","weight":25,"reps":12,"date":"2026-07-06","oneRM":35,"sixRM":29,"category":"Chest + Triceps"},{"exercise":"Rope Pushdown","display":"55 \u00d7 12","weight":55,"reps":12,"date":"2026-07-06","oneRM":77,"sixRM":64,"category":"Chest + Triceps"},{"exercise":"Star Trac Incline Press","display":"115 \u00d7 10","weight":115,"reps":10,"date":"2026-07-06","oneRM":153.33,"sixRM":128,"category":"Chest + Triceps"},{"exercise":"Overhead Rope Triceps Extension","display":"55 \u00d7 12","weight":55,"reps":12,"date":"2026-07-06","oneRM":77,"sixRM":64,"category":"Chest + Triceps"},{"exercise":"Dumbbell Shoulder Press","display":"35 \u00d7 12","weight":35,"reps":12,"date":"2026-07-08","oneRM":49,"sixRM":41,"category":"Shoulders + Legs"},{"exercise":"Dumbbell Lateral Raise","display":"15 \u00d7 12","weight":15,"reps":12,"date":"2026-07-08","oneRM":21,"sixRM":18,"category":"Shoulders + Legs"},{"exercise":"Bent-Over DB Rear-Delt Raise","display":"15 \u00d7 12","weight":15,"reps":12,"date":"2026-07-08","oneRM":21,"sixRM":18,"category":"Shoulders + Legs"},{"exercise":"Cable Face Pull","display":"75 \u00d7 12","weight":75,"reps":12,"date":"2026-07-08","oneRM":105,"sixRM":88,"category":"Shoulders + Legs"}],
+      historySessions: [{"date":"2026-04-27","duration":"~20 min","type":"Bodyweight","summary":"Push-ups / Squats / Plank \u2014 baseline session","details":[]},{"date":"2026-04-29","duration":"~20 min","type":"Bodyweight","summary":"Push-ups / Squats / Plank \u2014 all three baseline PRs","details":["Push-Ups \u2014 15 reps","Squats \u2014 30 reps","Plank \u2014 40 sec"]},{"date":"2026-05-02","duration":"25:26","type":"Cardio","summary":"Outdoor walk \u2014 1.17 miles","details":[]},{"date":"2026-05-03","duration":"40:16","type":"Cardio","summary":"Outdoor walk \u2014 2.00 miles (longest walk PR)","details":[]},{"date":"2026-05-08","duration":"29:06","type":"Cardio","summary":"Outdoor walk \u2014 1.43 miles","details":[]},{"date":"2026-05-17","duration":"32:26","type":"Cardio","summary":"Outdoor walk \u2014 1.52 miles","details":[]},{"date":"2026-05-22","duration":"~30 min","type":"Bodyweight","summary":"Push-ups and sit-ups \u2014 5 sets of 10 each","details":["Push-Ups \u2014 5 \u00d7 10","Sit-Ups \u2014 5 \u00d7 10"]},{"date":"2026-05-25","duration":"~30 min","type":"Bodyweight","summary":"Push-ups and sit-ups \u2014 5 sets of 10 each","details":["Push-Ups \u2014 5 \u00d7 10","Sit-Ups \u2014 5 \u00d7 10"]},{"date":"2026-06-05","duration":"25:00","type":"Bodyweight","summary":"100 push-ups \u2014 volume PR","details":["Push-Up Volume \u2014 100 reps in 25:00"]},{"date":"2026-07-05","duration":"27:16","type":"Cardio","summary":"Outdoor walk \u2014 1.35 miles","details":[]},{"date":"2026-07-05","duration":"23:30","type":"Bodyweight","summary":"100 push-ups \u2014 volume PR, 1:30 faster","details":["Push-Up Volume \u2014 100 reps in 23:30"]},{"date":"2026-07-05","duration":"~60 min","type":"Back + Biceps","summary":"First gym session \u2014 partial set history preserved from recorded PRs","details":["Lat Pulldown \u2014 top set 100 \u00d7 12","Cable Row \u2014 top set 100 \u00d7 10","DB Bicep Curl \u2014 top set 25 \u00d7 10","Hammer Curl \u2014 top set 20 \u00d7 10","Lower Back Machine \u2014 top set 110 \u00d7 12"]},{"date":"2026-07-06","duration":"Completed","type":"Chest + Triceps","summary":"10-minute walk (0.50 mi) plus 17 lifting sets","details":["Star Trac Chest Press \u2014 85\u00d712, 115\u00d712, 130\u00d712, 145\u00d710","Cable Fly (per side) \u2014 25\u00d712 \u00d7 3","Rope Pushdown \u2014 45\u00d712, 55\u00d712 \u00d7 3","Star Trac Incline Press \u2014 115\u00d710 \u00d7 3","Overhead Rope Triceps Extension \u2014 55\u00d710, 55\u00d710, 55\u00d712"]},{"date":"2026-07-08","duration":"Completed","type":"Shoulders","summary":"10-minute walk (0.57 mi) plus 15 lifting sets","details":["DB Shoulder Press \u2014 30\u00d712, 35\u00d712, 35\u00d712, 35\u00d79 (failure)","DB Lateral Raise \u2014 15\u00d712 \u00d7 4","Bent-Over DB Rear-Delt Raise \u2014 15\u00d712 \u00d7 4","Cable Face Pull \u2014 55\u00d712, 65\u00d712, 75\u00d712"]}],
       days: {}
     };
   }
@@ -570,7 +698,7 @@
       dailyGoal: '',
       bodyWeight: '',
       warmup: { enabled: false, type: 'Walk', minutes: '', distance: '' },
-      workoutFocus: 'Chest',
+      workoutFocus: 'Chest + Triceps',
       exercises: [],
       completed: false,
       updatedAt: ''
@@ -580,9 +708,21 @@
   function loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return defaultState();
+      const defaults = defaultState();
+      if (!raw) return defaults;
       const parsed = JSON.parse(raw);
-      return {...defaultState(), ...parsed, settings:{...defaultState().settings,...(parsed.settings||{})}, monthlyGoals:{...defaultState().monthlyGoals,...(parsed.monthlyGoals||{})}};
+      return {
+        ...defaults,
+        ...parsed,
+        settings:{...defaults.settings,...(parsed.settings||{})},
+        monthlyGoals:{...defaults.monthlyGoals,...(parsed.monthlyGoals||{})},
+        weeklyGoals:{...defaults.weeklyGoals,...(parsed.weeklyGoals||{})},
+        strengthTargets: parsed.strengthTargets?.length ? parsed.strengthTargets : defaults.strengthTargets,
+        historyWeight: defaults.historyWeight,
+        historicalPRs: defaults.historicalPRs,
+        historySessions: defaults.historySessions,
+        days: parsed.days || {}
+      };
     } catch (error) {
       console.warn(error);
       return defaultState();
@@ -659,7 +799,7 @@
   }
 
   function updateExerciseSelect() {
-    const focus = $('workoutFocus').value || 'Chest';
+    const focus = $('workoutFocus').value || 'Chest + Triceps';
     const list = exerciseLibrary[focus] || [];
     $('exerciseSelect').innerHTML = list.map(x => `<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join('');
   }
@@ -688,6 +828,7 @@
     if (view === 'day') loadDayIntoEditor(selectedDate);
     if (view === 'progress') renderProgress();
     if (view === 'week') renderWeeks();
+    if (view === 'history') renderHistory();
     if (view === 'data') renderDataStatus();
     window.scrollTo({top:0,behavior:'smooth'});
   }
@@ -788,7 +929,7 @@
     $('warmupType').value = workingDay.warmup?.type || 'Walk';
     $('warmupMinutes').value = workingDay.warmup?.minutes || '';
     $('warmupDistance').value = workingDay.warmup?.distance || '';
-    $('workoutFocus').value = workingDay.workoutFocus || 'Chest';
+    $('workoutFocus').value = workingDay.workoutFocus || 'Chest + Triceps';
     updateExerciseSelect();
     $('workoutCompleted').checked = Boolean(workingDay.completed);
     renderFeelingTags();
@@ -935,9 +1076,10 @@
   }
 
   function saveMonthlyGoalNumbers() {
-    state.monthlyGoals.workouts = $('monthlyWorkoutGoal').value;
-    state.monthlyGoals.cardioMiles = $('monthlyCardioGoal').value;
+    state.monthlyGoals.workouts = Number($('monthlyWorkoutGoal').value) || 0;
+    state.monthlyGoals.cardioMinutes = Number($('monthlyCardioGoal').value) || 0;
     state.monthlyGoals.custom = $('monthlyCustomGoal').value.trim();
+    state.settings.augustGoalWeight = Number($('augustGoalWeight').value) || 240;
     state.settings.goalWeight = Number($('goalWeight').value) || 225;
     saveState('Monthly goals saved');
   }
@@ -945,13 +1087,17 @@
   function renderAllSummaries() {
     $('monthlyHeadline').value = state.monthlyGoals.headline || '';
     $('monthlyWorkoutGoal').value = state.monthlyGoals.workouts || '';
-    $('monthlyCardioGoal').value = state.monthlyGoals.cardioMiles || '';
+    $('monthlyCardioGoal').value = state.monthlyGoals.cardioMinutes || '';
     $('monthlyCustomGoal').value = state.monthlyGoals.custom || '';
+    $('augustGoalWeight').value = state.settings.augustGoalWeight || 240;
     $('goalWeight').value = state.settings.goalWeight || 225;
     renderCalendar();
     renderMonthKPIs();
     renderWeeks();
     renderProgress();
+    renderStrengthTargets();
+    renderHistory();
+    renderGoalProgress();
     renderDataStatus();
   }
 
@@ -987,20 +1133,21 @@
     const days = Object.entries(state.days).filter(([date]) => isAugust(date));
     const completed = days.filter(([,d]) => d.completed || d.exercises?.some(ex => ex.sets.some(s => Number(s.reps)>0))).length;
     const sets = days.reduce((sum,[,d]) => sum + (d.exercises||[]).reduce((n,ex) => n + ex.sets.filter(s => Number(s.reps)>0).length,0),0);
-    const cardio = days.reduce((sum,[,d]) => sum + (d.warmup?.enabled ? Number(d.warmup.distance)||0 : 0),0);
-    const weighIns = days.filter(([,d]) => Number(d.bodyWeight)>0).sort(([a],[b]) => a.localeCompare(b));
-    const latestWeight = weighIns.length ? Number(weighIns[weighIns.length-1][1].bodyWeight) : null;
+    const cardioMinutes = days.reduce((sum,[,d]) => sum + (d.warmup?.enabled ? Number(d.warmup.minutes)||0 : 0),0);
+    const allWeighIns = getWeighIns();
+    const latestWeight = allWeighIns.length ? allWeighIns[allWeighIns.length-1].weight : null;
     const readiness = days.filter(([,d]) => dayHasData(d)).map(([,d]) => Number(d.readiness)||3);
     const avgReadiness = readiness.length ? readiness.reduce((a,b)=>a+b,0)/readiness.length : null;
-    return {completed,sets,cardio,latestWeight,avgReadiness,prs:calculatePRs().length};
+    const augustPRs = calculatePRs().filter(pr => isAugust(pr.date)).length;
+    return {completed,sets,cardioMinutes,latestWeight,avgReadiness,prs:augustPRs};
   }
 
   function renderMonthKPIs() {
     const s = getMonthStats();
     $('kpiWorkouts').textContent = s.completed;
     $('kpiWorkoutGoal').textContent = state.monthlyGoals.workouts ? `Goal: ${state.monthlyGoals.workouts}` : 'No goal set';
-    $('kpiCardio').textContent = `${s.cardio.toFixed(2)} mi`;
-    $('kpiCardioGoal').textContent = state.monthlyGoals.cardioMiles ? `Goal: ${state.monthlyGoals.cardioMiles} mi` : 'No goal set';
+    $('kpiCardio').textContent = `${Math.round(s.cardioMinutes)} min`;
+    $('kpiCardioGoal').textContent = state.monthlyGoals.cardioMinutes ? `Goal: ${state.monthlyGoals.cardioMinutes} min` : 'No goal set';
     $('kpiSets').textContent = s.sets;
     $('kpiPRs').textContent = s.prs;
     $('kpiWeight').textContent = s.latestWeight ? `${s.latestWeight.toFixed(1)} lb` : '—';
@@ -1010,21 +1157,21 @@
   function renderWeeks() {
     const wrap = $('weekGrid');
     wrap.innerHTML = weekRanges.map(([label,start,end]) => {
-      const goal = state.weeklyGoals[start] || {headline:'',workouts:'',cardioMiles:'',custom:''};
+      const goal = state.weeklyGoals[start] || {headline:'',workouts:'',cardioMinutes:'',custom:''};
       const dates = dateRange(start,end);
       const workoutCount = dates.filter(d => state.days[d]?.completed || state.days[d]?.exercises?.some(ex=>ex.sets.some(s=>Number(s.reps)>0))).length;
-      const cardio = dates.reduce((sum,d)=>sum+(state.days[d]?.warmup?.enabled ? Number(state.days[d].warmup.distance)||0:0),0);
+      const cardioMinutes = dates.reduce((sum,d)=>sum+(state.days[d]?.warmup?.enabled ? Number(state.days[d].warmup.minutes)||0:0),0);
       return `<article class="card week-card" data-week-start="${start}">
-        <div class="week-top"><div><div class="eyebrow">${label}</div><h3 style="margin:5px 0">${prettyDate(start)}${start!==end?` – ${prettyDate(end)}`:''}</h3><p style="margin:0;color:var(--muted)">${workoutCount} workout${workoutCount===1?'':'s'} · ${cardio.toFixed(2)} cardio miles</p></div><button class="btn small success" data-save-week>Save Goals</button></div>
-        <div style="display:grid;grid-template-columns:1.4fr .65fr .65fr;gap:8px;margin-top:12px">
+        <div class="week-top"><div><div class="eyebrow">${label}</div><h3 style="margin:5px 0">${prettyDate(start)}${start!==end?` – ${prettyDate(end)}`:''}</h3><p style="margin:0;color:var(--muted)">${workoutCount} workout${workoutCount===1?'':'s'} · ${Math.round(cardioMinutes)} cardio min</p></div><button class="btn small success" data-save-week>Save Goals</button></div>
+        <div class="week-goal-grid">
           <input data-week-field="headline" value="${escapeAttr(goal.headline)}" placeholder="Weekly focus" />
           <input data-week-field="workouts" type="number" min="0" value="${escapeAttr(goal.workouts)}" placeholder="Workouts" />
-          <input data-week-field="cardioMiles" type="number" min="0" step="0.1" value="${escapeAttr(goal.cardioMiles)}" placeholder="Miles" />
+          <input data-week-field="cardioMinutes" type="number" min="0" step="5" value="${escapeAttr(goal.cardioMinutes)}" placeholder="Cardio min" />
         </div>
         <input data-week-field="custom" value="${escapeAttr(goal.custom)}" placeholder="Optional custom goal" style="margin-top:8px" />
         <div class="week-dates">${dates.map(d => {
           const day=state.days[d];
-          const summary = day?.exercises?.length ? day.workoutFocus : day?.warmup?.enabled ? day.warmup.type : 'Blank';
+          const summary = day?.exercises?.length ? day.workoutFocus : day?.warmup?.enabled ? day.warmup.type : 'Open';
           return `<button class="mini-day" data-open-day="${d}"><strong>${prettyDate(d,{weekday:'short',day:'numeric'})}</strong><span>${escapeHtml(summary)}</span></button>`;
         }).join('')}</div>
       </article>`;
@@ -1044,6 +1191,7 @@
 
   function calculatePRs() {
     const best = new Map();
+    (state.historicalPRs||[]).forEach(pr => best.set(pr.exercise,{...clone(pr), historical:true}));
     Object.entries(state.days).filter(([date])=>isAugust(date)).sort(([a],[b])=>a.localeCompare(b)).forEach(([date,day])=>{
       (day.exercises||[]).forEach(ex=>{
         ex.sets.forEach(set=>{
@@ -1051,11 +1199,16 @@
           if (!(weight>0 && reps>0) || set.warmup) return;
           const oneRM=weight*(1+reps/30);
           const current=best.get(ex.name);
-          if (!current || oneRM>current.oneRM) best.set(ex.name,{exercise:ex.name,weight,reps,date,oneRM,sixRM:oneRM/1.2});
+          if (!current || !Number(current.oneRM) || oneRM>Number(current.oneRM)) {
+            best.set(ex.name,{exercise:ex.name,display:`${weight} × ${reps}`,weight,reps,date,oneRM,sixRM:oneRM/1.2,category:day.workoutFocus,historical:false});
+          }
         });
       });
     });
-    return [...best.values()].sort((a,b)=>a.exercise.localeCompare(b.exercise));
+    return [...best.values()].sort((a,b)=>{
+      const aWeighted=Number(a.oneRM)>0?0:1, bWeighted=Number(b.oneRM)>0?0:1;
+      return aWeighted-bWeighted || a.exercise.localeCompare(b.exercise);
+    });
   }
 
   function renderProgress() {
@@ -1066,81 +1219,143 @@
 
   function renderPRTable() {
     const rows = calculatePRs();
-    $('prTableBody').innerHTML = rows.length ? rows.map(pr => `<tr><td>${escapeHtml(pr.exercise)}</td><td>${pr.weight} × ${pr.reps}</td><td>${prettyDate(pr.date)}</td><td>${Math.round(pr.oneRM)} lb</td><td>${Math.round(pr.sixRM)} lb</td><td>${nextTarget(pr)}</td></tr>`).join('') : '<tr><td colspan="6" style="color:var(--muted)">No weighted sets logged yet.</td></tr>';
+    $('prTableBody').innerHTML = rows.length ? rows.map(pr => {
+      const bestSet = pr.display || (pr.weight ? `${pr.weight} × ${pr.reps}` : '—');
+      const one = Number(pr.oneRM)>0 ? `${Math.round(pr.oneRM)} lb` : '—';
+      const six = Number(pr.sixRM)>0 ? `${Math.round(pr.sixRM)} lb` : '—';
+      const target = Number(pr.oneRM)>0 ? nextTarget(pr) : bodyweightTarget(pr);
+      return `<tr><td>${escapeHtml(pr.exercise)}</td><td>${escapeHtml(bestSet)}</td><td>${prettyDate(pr.date,{month:'short',day:'numeric',year:'numeric'})}</td><td>${one}</td><td>${six}</td><td>${escapeHtml(target)}</td></tr>`;
+    }).join('') : '<tr><td colspan="6" style="color:var(--muted)">No records logged yet.</td></tr>';
+  }
+
+  function bodyweightTarget(pr) {
+    const targets = {'Push-Ups':'16+ reps','Push-Up Volume':'100 reps faster','Squats':'31+ reps','Plank':'45 sec','Sit-Ups':'12+ reps','Longest Walk':'More than 2.00 mi'};
+    return targets[pr.exercise] || 'Beat current best';
   }
 
   function nextTarget(pr) {
+    const planned = (state.strengthTargets||[]).find(t => t.exercise === pr.exercise);
+    if (planned) return planned.target;
     if (pr.reps < 12) return `${pr.weight} × ${pr.reps+1}`;
-    const step = pr.weight < 30 ? 5 : 5;
-    return `${pr.weight+step} × 8–10`;
+    return `${pr.weight+5} × 8–10`;
   }
 
   function getWeighIns() {
-    return Object.entries(state.days).filter(([date,d])=>isAugust(date)&&Number(d.bodyWeight)>0).sort(([a],[b])=>a.localeCompare(b)).map(([date,d])=>({date,weight:Number(d.bodyWeight)}));
+    const rows = [...(state.historyWeight||[]).map(x=>({date:x.date,weight:Number(x.weight),historical:true}))];
+    Object.entries(state.days).filter(([date,d])=>isAugust(date)&&Number(d.bodyWeight)>0).forEach(([date,d])=>rows.push({date,weight:Number(d.bodyWeight),historical:false}));
+    return rows.sort((a,b)=>a.date.localeCompare(b.date));
   }
 
   function renderWeightTable() {
-    const rows=getWeighIns(); const goal=Number(state.settings.goalWeight)||225;
+    const rows=getWeighIns(); const goal=Number(state.settings.augustGoalWeight)||240;
     $('weightTableBody').innerHTML = rows.length ? rows.map((row,i)=>{
       const change=i?row.weight-rows[i-1].weight:null;
       return `<tr><td>${prettyDate(row.date,{month:'short',day:'numeric',year:'numeric'})}</td><td>${row.weight.toFixed(1)} lb</td><td>${change===null?'—':`${change>0?'+':''}${change.toFixed(1)} lb`}</td><td>${Math.max(0,row.weight-goal).toFixed(1)} lb</td></tr>`;
-    }).join('') : '<tr><td colspan="4" style="color:var(--muted)">No August weigh-ins yet.</td></tr>';
+    }).join('') : '<tr><td colspan="4" style="color:var(--muted)">No weigh-ins yet.</td></tr>';
   }
 
   function renderWeightChart() {
     const data=getWeighIns(); const target=$('weightChart');
-    if (data.length<2) { target.innerHTML='<div class="chart-empty">Add at least two August weigh-ins to see the trend.</div>'; return; }
-    const width=700,height=240,pad=38; const weights=data.map(d=>d.weight); const goal=Number(state.settings.goalWeight)||225;
-    const min=Math.min(...weights,goal)-3,max=Math.max(...weights)+3;
+    if (data.length<2) { target.innerHTML='<div class="chart-empty">Add at least two weigh-ins to see the trend.</div>'; return; }
+    const width=700,height=260,pad=42; const weights=data.map(d=>d.weight);
+    const augGoal=Number(state.settings.augustGoalWeight)||240; const longGoal=Number(state.settings.goalWeight)||225;
+    const min=Math.min(...weights,longGoal)-3,max=Math.max(...weights)+3;
     const x=i=>pad+(i*(width-pad*2)/(data.length-1));
     const y=v=>height-pad-((v-min)/(max-min))*(height-pad*2);
     const points=data.map((d,i)=>`${x(i)},${y(d.weight)}`).join(' ');
     target.innerHTML=`<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Weight trend">
-      <line x1="${pad}" y1="${y(goal)}" x2="${width-pad}" y2="${y(goal)}" stroke="#41d68a" stroke-dasharray="7 7" opacity=".65" />
-      <text x="${width-pad}" y="${y(goal)-7}" fill="#7de6b1" font-size="12" text-anchor="end">Goal ${goal}</text>
+      <line x1="${pad}" y1="${y(augGoal)}" x2="${width-pad}" y2="${y(augGoal)}" stroke="#41d68a" stroke-dasharray="7 7" opacity=".8" />
+      <text x="${width-pad}" y="${y(augGoal)-7}" fill="#7de6b1" font-size="12" text-anchor="end">August ${augGoal}</text>
+      <line x1="${pad}" y1="${y(longGoal)}" x2="${width-pad}" y2="${y(longGoal)}" stroke="#a78bfa" stroke-dasharray="5 7" opacity=".65" />
+      <text x="${width-pad}" y="${y(longGoal)-7}" fill="#c9b8ff" font-size="12" text-anchor="end">Long-term ${longGoal}</text>
       <polyline points="${points}" fill="none" stroke="#35a7ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
       ${data.map((d,i)=>`<circle cx="${x(i)}" cy="${y(d.weight)}" r="5" fill="#eef5ff" stroke="#35a7ff" stroke-width="3"/><text x="${x(i)}" y="${y(d.weight)-12}" fill="#eef5ff" font-size="12" text-anchor="middle">${d.weight}</text><text x="${x(i)}" y="${height-9}" fill="#8fa4bd" font-size="11" text-anchor="middle">${prettyDate(d.date)}</text>`).join('')}
     </svg>`;
   }
 
-  function renderDataStatus() {
-    const s=getMonthStats(); const days=Object.values(state.days).filter(dayHasData).length;
-    $('dataStatus').innerHTML=`<strong>${days}</strong> August day${days===1?'':'s'} contain data.<br><strong>${s.completed}</strong> workouts, <strong>${s.sets}</strong> lifting sets, <strong>${getWeighIns().length}</strong> weigh-ins, and <strong>${s.prs}</strong> calculated PRs.`;
+  function renderGoalProgress() {
+    const rows=getWeighIns();
+    const current=rows.length?rows[rows.length-1].weight:Number(state.settings.augustStartWeight)||250.8;
+    const start=Number(state.settings.augustStartWeight)||250.8;
+    const target=Number(state.settings.augustGoalWeight)||240;
+    const longGoal=Number(state.settings.goalWeight)||225;
+    const total=Math.max(.1,start-target); const moved=Math.max(0,start-current);
+    const pct=Math.max(0,Math.min(100,moved/total*100));
+    $('goalCurrentText').textContent=`${current.toFixed(1)} lb current`;
+    $('goalTargetText').textContent=`${target.toFixed(0)} lb August goal`;
+    $('goalProgressBar').style.width=`${pct}%`;
+    $('goalProgressText').textContent=`${Math.max(0,current-target).toFixed(1)} lb to August goal · Long-term goal ${longGoal.toFixed(0)} lb`;
   }
 
-  function exportExcel() {
-    if (!window.XLSX) { toast('Excel library did not load. Use JSON backup instead.'); return; }
+  function renderStrengthTargets() {
+    $('strengthTargetGrid').innerHTML=(state.strengthTargets||[]).map(t=>`<article class="card target-card"><span class="target-exercise">${escapeHtml(t.exercise)}</span><strong>${escapeHtml(t.target)}</strong><small>${escapeHtml(t.note)}</small></article>`).join('');
+  }
+
+  function renderHistory() {
+    const sessions=state.historySessions||[];
+    const cardio=sessions.filter(s=>s.type==='Cardio').length;
+    const lifting=sessions.filter(s=>!['Cardio'].includes(s.type)).length;
+    const lost=(state.historyWeight?.[0]?.weight||0)-(state.historyWeight?.[state.historyWeight.length-1]?.weight||0);
+    $('historyStats').innerHTML=`
+      <article class="card history-stat"><span>Sessions</span><strong>${sessions.length}</strong></article>
+      <article class="card history-stat"><span>Strength / Bodyweight</span><strong>${lifting}</strong></article>
+      <article class="card history-stat"><span>Cardio Sessions</span><strong>${cardio}</strong></article>
+      <article class="card history-stat"><span>Weight Down</span><strong>${lost.toFixed(1)} lb</strong></article>`;
+    $('historyList').innerHTML=[...sessions].sort((a,b)=>b.date.localeCompare(a.date)).map(s=>`<article class="card history-card">
+      <div class="history-top"><div><div class="eyebrow">${prettyDate(s.date,{month:'long',day:'numeric',year:'numeric'})}</div><h4>${escapeHtml(s.type)}</h4><p>${escapeHtml(s.summary)}</p></div><span class="pill">${escapeHtml(s.duration)}</span></div>
+      ${s.details?.length?`<div class="history-details">${s.details.map((d,i)=>{const parts=d.split(' — ');return `<div class="history-detail"><span>${escapeHtml(parts[0])}</span><span>${escapeHtml(parts.slice(1).join(' — '))}</span></div>`}).join('')}</div>`:''}
+    </article>`).join('');
+  }
+
+  function renderDataStatus() {
+    const s=getMonthStats(); const augustDays=Object.entries(state.days).filter(([date,d])=>isAugust(date)&&dayHasData(d)).length;
+    $('dataStatus').innerHTML=`<strong>${augustDays}</strong> August day${augustDays===1?'':'s'} contain data.<br><strong>${s.completed}</strong> workouts, <strong>${s.sets}</strong> lifting sets, <strong>${Math.round(s.cardioMinutes)}</strong> cardio minutes, and <strong>${s.prs}</strong> new August PRs.<br><br>Your file also includes <strong>${state.historySessions.length}</strong> earlier sessions and <strong>${state.historyWeight.length}</strong> earlier weigh-ins.`;
+  }
+
+  async function loadXLSX() {
+    if (window.XLSX) return true;
+    toast('Loading spreadsheet tools…');
+    return new Promise(resolve=>{
+      const script=document.createElement('script');
+      script.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+      script.onload=()=>resolve(true); script.onerror=()=>resolve(false); document.head.appendChild(script);
+    });
+  }
+
+  async function exportExcel() {
+    if (!(await loadXLSX())) { toast('Spreadsheet tools could not load. Download a JSON backup instead.'); return; }
     const wb=XLSX.utils.book_new();
     const summary=[
       ['TJ Fitness Tracker','August 2026'],
       ['Monthly Goal',state.monthlyGoals.headline||''],
       ['Workout Goal',state.monthlyGoals.workouts||''],
-      ['Cardio Miles Goal',state.monthlyGoals.cardioMiles||''],
-      ['Goal Weight',state.settings.goalWeight||225],
+      ['Cardio Minutes Goal',state.monthlyGoals.cardioMinutes||''],
+      ['August Goal Weight',state.settings.augustGoalWeight||240],
+      ['Long-Term Goal Weight',state.settings.goalWeight||225],
       ['Custom Goal',state.monthlyGoals.custom||'']
     ];
     XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(summary),'Summary');
 
     const daily=[]; const sets=[]; const weigh=[];
     Object.entries(state.days).filter(([date])=>isAugust(date)).sort(([a],[b])=>a.localeCompare(b)).forEach(([date,day])=>{
-      daily.push({Date:date,'Workout Focus':day.workoutFocus||'',Completed:day.completed?'Yes':'No',Readiness:day.readiness||'', 'Feeling Tags':(day.feelingTags||[]).join('; '),'Feeling Note':day.feelingNote||'','Daily Goal':day.dailyGoal||'','Warm-Up Enabled':day.warmup?.enabled?'Yes':'No','Warm-Up Type':day.warmup?.type||'','Warm-Up Minutes':day.warmup?.minutes||'','Warm-Up Distance Miles':day.warmup?.distance||'','Body Weight':day.bodyWeight||''});
-      if (day.bodyWeight) weigh.push({Date:date,Weight:Number(day.bodyWeight),Goal:Number(state.settings.goalWeight)||225});
+      daily.push({Date:date,'Workout Focus':day.workoutFocus||'',Completed:day.completed?'Yes':'No',Readiness:day.readiness||'', 'Feeling Tags':(day.feelingTags||[]).join('; '),'Feeling Note':day.feelingNote||'','Daily Goal':day.dailyGoal||'','Cardio Enabled':day.warmup?.enabled?'Yes':'No','Cardio Type':day.warmup?.type||'','Cardio Minutes':day.warmup?.minutes||'','Cardio Distance Miles':day.warmup?.distance||'','Body Weight':day.bodyWeight||''});
       (day.exercises||[]).forEach((ex,exIndex)=>ex.sets.forEach((set,setIndex)=>sets.push({Date:date,'Workout Focus':day.workoutFocus||'',Exercise:ex.name,Category:ex.category||'', 'Exercise Order':exIndex+1,'Set Number':setIndex+1,Weight:set.weight||'',Reps:set.reps||'',Warmup:set.warmup?'Yes':'No',Failure:set.failure?'Yes':'No',Notes:set.notes||''})));
     });
-    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(daily),'Daily Logs');
-    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(sets),'Sets');
+    getWeighIns().forEach(row=>weigh.push({Date:row.date,Weight:row.weight,'August Goal':Number(state.settings.augustGoalWeight)||240,'Long-Term Goal':Number(state.settings.goalWeight)||225,Source:row.historical?'History':'August'}));
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(daily),'August Daily Logs');
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(sets),'August Sets');
     XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(weigh),'Weigh-Ins');
-
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(state.historySessions.map(s=>({Date:s.date,Duration:s.duration,Type:s.type,Summary:s.summary,Details:(s.details||[]).join('; ')}))),'Workout History');
     const goals=weekRanges.map(([label,start,end])=>({Week:label,Start:start,End:end,...(state.weeklyGoals[start]||{})}));
     XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(goals),'Weekly Goals');
-    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(calculatePRs().map(pr=>({Exercise:pr.exercise,'Best Set':`${pr.weight} x ${pr.reps}`,Date:pr.date,'Estimated 1RM':Math.round(pr.oneRM),'Estimated 6RM':Math.round(pr.sixRM),'Next Target':nextTarget(pr)}))),'PRs');
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(calculatePRs().map(pr=>({Exercise:pr.exercise,'Best Set':pr.display||`${pr.weight} x ${pr.reps}`,Date:pr.date,'Estimated 1RM':Number(pr.oneRM)>0?Math.round(pr.oneRM):'','Estimated 6RM':Number(pr.sixRM)>0?Math.round(pr.sixRM):'','Next Target':Number(pr.oneRM)>0?nextTarget(pr):bodyweightTarget(pr)}))),'PRs');
     XLSX.writeFile(wb,'TJ_Fitness_August_2026.xlsx');
     toast('Excel downloaded');
   }
 
   async function importExcel(event) {
     const file=event.target.files?.[0]; if(!file)return;
-    if (!window.XLSX) { toast('Excel library did not load'); return; }
+    if (!(await loadXLSX())) { toast('Spreadsheet tools could not load'); return; }
     try {
       const wb=XLSX.read(await file.arrayBuffer(),{type:'array'});
       const imported=defaultState();
@@ -1149,18 +1364,21 @@
         const map=Object.fromEntries(rows.filter(r=>r.length>=2));
         imported.monthlyGoals.headline=map['Monthly Goal']||'';
         imported.monthlyGoals.workouts=map['Workout Goal']||'';
-        imported.monthlyGoals.cardioMiles=map['Cardio Miles Goal']||'';
+        imported.monthlyGoals.cardioMinutes=Number(map['Cardio Minutes Goal']||map['Cardio Miles Goal'])||240;
         imported.monthlyGoals.custom=map['Custom Goal']||'';
-        imported.settings.goalWeight=Number(map['Goal Weight'])||225;
+        imported.settings.augustGoalWeight=Number(map['August Goal Weight'])||240;
+        imported.settings.goalWeight=Number(map['Long-Term Goal Weight']||map['Goal Weight'])||225;
       }
-      if (wb.Sheets['Daily Logs']) {
-        XLSX.utils.sheet_to_json(wb.Sheets['Daily Logs']).forEach(row=>{
+      const dailySheet=wb.Sheets['August Daily Logs']||wb.Sheets['Daily Logs'];
+      if (dailySheet) {
+        XLSX.utils.sheet_to_json(dailySheet).forEach(row=>{
           const date=normalizeExcelDate(row.Date); if(!isAugust(date))return;
-          const d=blankDay(); d.workoutFocus=row['Workout Focus']||'Chest'; d.completed=String(row.Completed).toLowerCase()==='yes'; d.readiness=Number(row.Readiness)||3; d.feelingTags=String(row['Feeling Tags']||'').split(';').map(x=>x.trim()).filter(Boolean); d.feelingNote=row['Feeling Note']||''; d.dailyGoal=row['Daily Goal']||''; d.bodyWeight=row['Body Weight']||''; d.warmup={enabled:String(row['Warm-Up Enabled']).toLowerCase()==='yes',type:row['Warm-Up Type']||'Walk',minutes:row['Warm-Up Minutes']||'',distance:row['Warm-Up Distance Miles']||''}; imported.days[date]=d;
+          const d=blankDay(); d.workoutFocus=row['Workout Focus']||'Chest + Triceps'; d.completed=String(row.Completed).toLowerCase()==='yes'; d.readiness=Number(row.Readiness)||3; d.feelingTags=String(row['Feeling Tags']||'').split(';').map(x=>x.trim()).filter(Boolean); d.feelingNote=row['Feeling Note']||''; d.dailyGoal=row['Daily Goal']||''; d.bodyWeight=row['Body Weight']||''; d.warmup={enabled:String(row['Cardio Enabled']||row['Warm-Up Enabled']).toLowerCase()==='yes',type:row['Cardio Type']||row['Warm-Up Type']||'Walk',minutes:row['Cardio Minutes']||row['Warm-Up Minutes']||'',distance:row['Cardio Distance Miles']||row['Warm-Up Distance Miles']||''}; imported.days[date]=d;
         });
       }
-      if (wb.Sheets['Sets']) {
-        XLSX.utils.sheet_to_json(wb.Sheets['Sets']).forEach(row=>{
+      const setsSheet=wb.Sheets['August Sets']||wb.Sheets['Sets'];
+      if (setsSheet) {
+        XLSX.utils.sheet_to_json(setsSheet).forEach(row=>{
           const date=normalizeExcelDate(row.Date); if(!isAugust(date))return;
           const d=imported.days[date]||(imported.days[date]=blankDay()); d.workoutFocus=row['Workout Focus']||d.workoutFocus;
           let ex=d.exercises.find(x=>x.name===row.Exercise); if(!ex){ex={id:cryptoRandomId(),name:row.Exercise||'Exercise',category:row.Category||d.workoutFocus,notes:'',sets:[]};d.exercises.push(ex);}
@@ -1168,7 +1386,7 @@
         });
       }
       if (wb.Sheets['Weekly Goals']) {
-        XLSX.utils.sheet_to_json(wb.Sheets['Weekly Goals']).forEach(row=>{if(row.Start) imported.weeklyGoals[normalizeExcelDate(row.Start)]={headline:row.headline||row.Headline||'',workouts:row.workouts||row.Workouts||'',cardioMiles:row.cardioMiles||row['Cardio Miles']||'',custom:row.custom||row.Custom||''};});
+        XLSX.utils.sheet_to_json(wb.Sheets['Weekly Goals']).forEach(row=>{if(row.Start) imported.weeklyGoals[normalizeExcelDate(row.Start)]={headline:row.headline||row.Headline||'',workouts:row.workouts||row.Workouts||'',cardioMinutes:row.cardioMinutes||row['Cardio Minutes']||'',custom:row.custom||row.Custom||''};});
       }
       state=imported; saveState('Excel imported'); loadDayIntoEditor(selectedDate);
     } catch(error) { console.error(error); toast('Could not import that workbook'); }
@@ -1189,14 +1407,14 @@
 
   async function importJson(event) {
     const file=event.target.files?.[0]; if(!file)return;
-    try { const parsed=JSON.parse(await file.text()); if(parsed.month!==MONTH_PREFIX) throw new Error('Wrong month'); state={...defaultState(),...parsed}; saveState('Backup restored'); loadDayIntoEditor(selectedDate); }
+    try { const parsed=JSON.parse(await file.text()); if(parsed.month!==MONTH_PREFIX) throw new Error('Wrong month'); state={...defaultState(),...parsed,historyWeight:defaultState().historyWeight,historicalPRs:defaultState().historicalPRs,historySessions:defaultState().historySessions}; saveState('Backup restored'); loadDayIntoEditor(selectedDate); }
     catch(error){toast('Could not restore that backup');}
     event.target.value='';
   }
 
   function resetAugust() {
-    if (!confirm('Reset August to a completely blank month? This cannot be undone unless you export a backup first.')) return;
-    state=defaultState(); saveState('August reset'); selectedDate=AUG_START; loadDayIntoEditor(selectedDate); switchView('month');
+    if (!confirm('Clear every August entry and restore the built-in goals? Your April–July history will stay. This cannot be undone unless you export a backup first.')) return;
+    state=defaultState(); saveState('August entries reset'); selectedDate=AUG_START; loadDayIntoEditor(selectedDate); switchView('month');
   }
 
   function escapeHtml(value='') { return String(value).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch])); }
