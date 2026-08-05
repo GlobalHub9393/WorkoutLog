@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="TJ Fitness" />
-  <title>TJ Fitness — August 2026 Plan</title>
+  <title>TJ Fitness — August 2026 Workout Mode</title>
   <style>
     :root {
       --bg: #07101e;
@@ -417,6 +417,90 @@
       .day-focus { font-size:.58rem; }
     }
 
+
+    /* Workout Mode v3 */
+    .workout-launch-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .workout-launch-row .btn { flex:1; }
+    .oura-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+    .oura-grid label.field { margin-top:8px; }
+    .subtle-note { margin:8px 0 0; color:var(--muted); font-size:.78rem; line-height:1.45; }
+
+    .active-workout-bar {
+      position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:88;
+      width:min(720px,calc(100% - 24px)); display:none; align-items:center; justify-content:space-between; gap:12px;
+      padding:10px 12px; border:1px solid rgba(53,167,255,.38); border-radius:16px;
+      background:rgba(13,24,40,.96); backdrop-filter:blur(18px); box-shadow:0 16px 45px rgba(0,0,0,.42);
+    }
+    .active-workout-bar.show { display:flex; }
+    .active-workout-bar strong { display:block; }
+    .active-workout-bar small { display:block; color:var(--muted); margin-top:2px; }
+
+    .workout-mode {
+      position:fixed; inset:0; z-index:120; display:none; background:var(--bg); color:var(--text); overflow:auto;
+      padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+    }
+    .workout-mode.open { display:block; }
+    .wm-shell { width:min(760px,100%); min-height:100%; margin:0 auto; padding:12px 14px 30px; }
+    .wm-top {
+      position:sticky; top:0; z-index:5; display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px;
+      padding:10px 0 12px; background:linear-gradient(180deg,var(--bg) 82%,transparent);
+    }
+    .wm-title { text-align:center; min-width:0; }
+    .wm-title strong { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .wm-title small { color:var(--muted); }
+    .wm-progress { height:7px; border-radius:999px; background:#0a1422; border:1px solid var(--line); overflow:hidden; margin:2px 0 14px; }
+    .wm-progress span { display:block; height:100%; width:0; background:linear-gradient(90deg,var(--blue),var(--green)); transition:width .2s ease; }
+    .wm-card { border:1px solid var(--line); border-radius:20px; background:linear-gradient(180deg,var(--panel-2),var(--panel)); padding:18px; box-shadow:var(--shadow); }
+    .wm-empty { text-align:center; padding:34px 14px; }
+    .wm-empty h2 { margin:0 0 8px; }
+    .wm-empty p { color:var(--muted); line-height:1.5; }
+    .wm-ex-name { font-size:1.65rem; letter-spacing:-.035em; margin:4px 0 2px; }
+    .wm-previous { color:var(--muted); font-size:.86rem; margin-bottom:16px; }
+    .wm-set-label { color:var(--blue); font-size:.77rem; font-weight:900; text-transform:uppercase; letter-spacing:.08em; }
+    .wm-inputs { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:12px 0; }
+    .wm-inputs input { min-height:76px; font-size:2rem; font-weight:900; text-align:center; border-radius:17px; }
+    .wm-quick { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-bottom:12px; }
+    .wm-toggle-row { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin:12px 0; }
+    .wm-toggle {
+      display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border:1px solid var(--line); border-radius:13px;
+      background:#0a1422; font-weight:850;
+    }
+    .wm-toggle input { width:23px; height:23px; }
+    .wm-save { width:100%; min-height:58px; font-size:1.05rem; }
+    .wm-nav { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:12px; }
+    .wm-insight { margin-bottom:12px; padding:12px 14px; border:1px solid rgba(167,139,250,.34); border-radius:14px; background:rgba(167,139,250,.10); }
+    .wm-insight strong { display:block; color:#d7ccff; }
+    .wm-insight span { display:block; color:#b8c9de; margin-top:4px; font-size:.84rem; }
+    .wm-drawer { display:grid; gap:8px; margin-top:14px; }
+    .wm-ex-row { display:grid; grid-template-columns:1fr auto; align-items:center; gap:10px; padding:12px; border:1px solid var(--line); border-radius:13px; background:rgba(7,16,30,.52); color:var(--text); text-align:left; }
+    .wm-ex-row.active { border-color:var(--blue); background:rgba(53,167,255,.10); }
+    .wm-ex-row small { display:block; color:var(--muted); margin-top:3px; }
+    .wm-add-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
+
+    .sheet-overlay { position:fixed; inset:0; z-index:140; display:none; align-items:flex-end; justify-content:center; background:rgba(0,0,0,.62); }
+    .sheet-overlay.open { display:flex; }
+    .sheet { width:min(680px,100%); max-height:88vh; overflow:auto; padding:18px 16px calc(18px + env(safe-area-inset-bottom)); border-radius:22px 22px 0 0; background:var(--panel); border:1px solid var(--line); box-shadow:0 -20px 60px rgba(0,0,0,.5); }
+    .sheet-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; }
+    .sheet-head h3 { margin:0; }
+    .picker-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-top:12px; }
+    .picker-option { text-align:left; min-height:50px; }
+    .sheet-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+    .sheet-actions .btn { flex:1; }
+    .recap-list { display:grid; gap:8px; margin:14px 0; }
+    .recap-row { display:flex; justify-content:space-between; gap:12px; padding:10px; border:1px solid var(--line); border-radius:12px; background:rgba(7,16,30,.45); }
+    .recap-row span:last-child { text-align:right; color:#d7e7fa; }
+
+    @media (max-width:720px) {
+      .active-workout-bar { bottom:calc(70px + env(safe-area-inset-bottom)); }
+      .oura-grid { grid-template-columns:1fr 1fr; }
+      .wm-shell { padding-left:10px; padding-right:10px; }
+      .wm-card { padding:15px; }
+      .wm-inputs input { min-height:82px; }
+      .wm-quick { grid-template-columns:repeat(2,1fr); }
+      .wm-add-row { grid-template-columns:1fr; }
+      .picker-grid { grid-template-columns:1fr; }
+    }
+
   </style>
 </head>
 <body>
@@ -519,6 +603,17 @@
             </article>
 
             <article class="card panel">
+              <div class="section-head"><div><h3>Oura Check-In</h3><p>Optional. The app only nudges you occasionally.</p></div><label class="toggle-row"><input id="ouraPromptEnabled" type="checkbox" checked /> Nudges</label></div>
+              <div class="oura-grid">
+                <label class="field"><span>Readiness</span><input id="ouraReadiness" type="number" min="1" max="100" placeholder="Optional" /></label>
+                <label class="field"><span>Sleep</span><input id="ouraSleep" type="number" min="1" max="100" placeholder="Optional" /></label>
+                <label class="field"><span>Activity</span><input id="ouraActivity" type="number" min="1" max="100" placeholder="Optional" /></label>
+                <label class="field"><span>Hours slept</span><input id="ouraHours" type="number" min="0" max="24" step="0.1" placeholder="Optional" /></label>
+              </div>
+              <p class="subtle-note">Useful after a long break, a new PR, or when the app occasionally asks for context.</p>
+            </article>
+
+            <article class="card panel">
               <h3>Weigh-In</h3>
               <label class="field"><span>Body weight (lb)</span><input id="bodyWeight" type="number" step="0.1" min="100" max="500" placeholder="Optional" /></label>
             </article>
@@ -548,6 +643,10 @@
               <div class="hero-actions" style="margin-top:10px">
                 <button id="loadTemplateBtn" class="btn success">Load Suggested Workout</button>
                 <button id="copyLastBtn" class="btn">Copy Last Similar Workout</button>
+              </div>
+              <div class="workout-launch-row">
+                <button id="startWorkoutModeBtn" class="btn primary">Start Workout Mode</button>
+                <button id="shareWorkoutBtn" class="btn">Share Workout</button>
               </div>
               <div id="exerciseList" class="exercise-list"></div>
               <div class="complete-row">
@@ -622,6 +721,67 @@
     </main>
   </div>
 
+  <div id="activeWorkoutBar" class="active-workout-bar">
+    <div><strong id="activeBarTitle">Workout in progress</strong><small id="activeBarMeta">Tap to resume</small></div>
+    <button id="resumeWorkoutBtn" class="btn small primary">Resume</button>
+  </div>
+
+  <section id="workoutMode" class="workout-mode" aria-hidden="true">
+    <div class="wm-shell">
+      <header class="wm-top">
+        <button id="exitWorkoutModeBtn" class="btn small">Close</button>
+        <div class="wm-title"><strong id="wmFocus">Workout</strong><small id="wmDate">August</small></div>
+        <button id="finishWorkoutBtn" class="btn small success">Finish</button>
+      </header>
+      <div class="wm-progress"><span id="wmProgressBar"></span></div>
+      <div id="wmInsight" class="wm-insight hidden"></div>
+      <div id="wmMain"></div>
+      <div id="wmExerciseDrawer" class="wm-drawer"></div>
+      <div class="wm-add-row">
+        <button id="wmAddExerciseBtn" class="btn primary">+ Add Exercise</button>
+        <button id="wmAddOuraBtn" class="btn">Add Oura Scores</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="exercisePickerSheet" class="sheet-overlay" aria-hidden="true">
+    <div class="sheet">
+      <div class="sheet-head"><h3>Add Exercise</h3><button id="closeExercisePickerBtn" class="btn small">Close</button></div>
+      <label class="field"><span>Workout focus</span><select id="wmPickerFocus"></select></label>
+      <div id="wmPickerOptions" class="picker-grid"></div>
+      <div class="builder-row custom" style="margin-top:12px">
+        <input id="wmCustomExercise" type="text" placeholder="Or type a custom exercise" />
+        <button id="wmAddCustomBtn" class="btn primary">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="ouraSheet" class="sheet-overlay" aria-hidden="true">
+    <div class="sheet">
+      <div class="sheet-head"><h3>Optional Oura Check-In</h3><button id="closeOuraSheetBtn" class="btn small">Close</button></div>
+      <p id="ouraPromptReason" class="notice">Add scores only when useful.</p>
+      <div class="oura-grid">
+        <label class="field"><span>Readiness</span><input id="sheetOuraReadiness" type="number" min="1" max="100" placeholder="Optional" /></label>
+        <label class="field"><span>Sleep</span><input id="sheetOuraSleep" type="number" min="1" max="100" placeholder="Optional" /></label>
+        <label class="field"><span>Activity</span><input id="sheetOuraActivity" type="number" min="1" max="100" placeholder="Optional" /></label>
+        <label class="field"><span>Hours slept</span><input id="sheetOuraHours" type="number" min="0" max="24" step="0.1" placeholder="Optional" /></label>
+      </div>
+      <div class="sheet-actions"><button id="saveOuraSheetBtn" class="btn primary">Save Scores</button><button id="dismissOuraPromptBtn" class="btn">Not Now</button></div>
+    </div>
+  </div>
+
+  <div id="finishSheet" class="sheet-overlay" aria-hidden="true">
+    <div class="sheet">
+      <div class="sheet-head"><h3>Workout Recap</h3><button id="closeFinishSheetBtn" class="btn small">Back</button></div>
+      <div id="finishRecap"></div>
+      <div class="sheet-actions">
+        <button id="confirmFinishBtn" class="btn success">Finish & Save</button>
+        <button id="shareFromFinishBtn" class="btn primary">Share Summary</button>
+        <button id="downloadSessionJsonBtn" class="btn">Workout JSON</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" class="toast"></div>
 
 <script>
@@ -636,7 +796,7 @@
   const feelingOptions = ['Low sleep','Sore','Stressed','Busy','Feeling strong','High energy','Pain / discomfort'];
 
   const exerciseLibrary = {
-    'Chest + Triceps': ['Bench Press','Incline Bench Press','Dumbbell Chest Press','Star Trac Chest Press','Star Trac Incline Press','Cable Fly (per side)','Cable Fly','Pec Deck','Push-Ups','Dips','Rope Pushdown','Overhead Rope Triceps Extension','Skull Crushers'],
+    'Chest + Triceps': ['Bench Press','Incline Bench Press','Dumbbell Chest Press','Star Trac Chest Press','Star Trac Incline Press','Cable Fly (per side)','Cable Fly','Pec Deck','Push-Ups','Dips','Rope Pushdown','Overhead Rope Triceps Extension','Overhead Dumbbell Tricep Extensions','Skull Crushers'],
     'Back + Biceps': ['Lat Pulldown','Cable Row','Dumbbell Row','Machine Row','Pull-Ups','Deadlift','Romanian Deadlift','Cable Face Pull','Lower Back Machine','Dumbbell Bicep Curl','Hammer Curl','Preacher Curl','Cable Curl'],
     'Shoulders + Legs': ['Dumbbell Shoulder Press','Machine Shoulder Press','Dumbbell Lateral Raise','Cable Lateral Raise','Bent-Over DB Rear-Delt Raise','Reverse Pec Deck','Cable Face Pull','Front Raise','Shrugs','Back Squat','Goblet Squat','Leg Press','Leg Extension','Leg Curl','Romanian Deadlift','Walking Lunges','Calf Raise','Hip Thrust'],
     'Core': ['Plank','Sit-Ups','Crunch Machine','Leg Raises','Dead Bug','Bird Dog','Russian Twist','Mountain Climbers'],
@@ -666,15 +826,17 @@
   let selectedDate = AUG_START;
   let workingDay = null;
   let autosaveTimer = null;
+  let wmExerciseIndex = 0;
+  let wmInsightMessage = '';
 
   const $ = id => document.getElementById(id);
   const clone = value => JSON.parse(JSON.stringify(value));
 
   function defaultState() {
     return {
-      version: 2,
+      version: 3,
       month: MONTH_PREFIX,
-      settings: { goalWeight: 225, augustGoalWeight: 240, augustStartWeight: 250.8 },
+      settings: { goalWeight: 225, augustGoalWeight: 240, augustStartWeight: 250.8, ouraPrompts: true },
       monthlyGoals: {
         headline: 'Reach 240 lb while completing 13 lifting sessions and 4 hours of cardio.',
         workouts: 13,
@@ -686,7 +848,7 @@
       historyWeight: [{"date":"2026-06-03","weight":270.0},{"date":"2026-07-06","weight":255.0},{"date":"2026-07-09","weight":253.7},{"date":"2026-07-31","weight":250.8}],
       historicalPRs: [{"exercise":"Push-Ups","display":"15 reps","weight":0,"reps":15,"date":"2026-04-29","oneRM":null,"sixRM":null,"category":"Bodyweight"},{"exercise":"Push-Up Volume","display":"100 reps / 23:30","weight":0,"reps":100,"date":"2026-07-05","oneRM":null,"sixRM":null,"category":"Bodyweight"},{"exercise":"Squats","display":"30 reps","weight":0,"reps":30,"date":"2026-04-29","oneRM":null,"sixRM":null,"category":"Bodyweight"},{"exercise":"Plank","display":"40 sec","weight":0,"reps":40,"date":"2026-04-29","oneRM":null,"sixRM":null,"category":"Core"},{"exercise":"Sit-Ups","display":"10 reps","weight":0,"reps":10,"date":"2026-05-22","oneRM":null,"sixRM":null,"category":"Core"},{"exercise":"Longest Walk","display":"2.00 miles","weight":0,"reps":0,"date":"2026-05-03","oneRM":null,"sixRM":null,"category":"Cardio"},{"exercise":"Lower Back Machine","display":"110 \u00d7 12","weight":110,"reps":12,"date":"2026-07-05","oneRM":154,"sixRM":128,"category":"Back + Biceps"},{"exercise":"Lat Pulldown","display":"100 \u00d7 12","weight":100,"reps":12,"date":"2026-07-05","oneRM":140,"sixRM":117,"category":"Back + Biceps"},{"exercise":"Cable Row","display":"100 \u00d7 10","weight":100,"reps":10,"date":"2026-07-05","oneRM":133.33,"sixRM":111,"category":"Back + Biceps"},{"exercise":"Dumbbell Bicep Curl","display":"25 \u00d7 10","weight":25,"reps":10,"date":"2026-07-05","oneRM":33.33,"sixRM":28,"category":"Back + Biceps"},{"exercise":"Hammer Curl","display":"20 \u00d7 10","weight":20,"reps":10,"date":"2026-07-05","oneRM":26.67,"sixRM":22,"category":"Back + Biceps"},{"exercise":"Star Trac Chest Press","display":"145 \u00d7 10","weight":145,"reps":10,"date":"2026-07-06","oneRM":193.33,"sixRM":161,"category":"Chest + Triceps"},{"exercise":"Cable Fly (per side)","display":"25 \u00d7 12","weight":25,"reps":12,"date":"2026-07-06","oneRM":35,"sixRM":29,"category":"Chest + Triceps"},{"exercise":"Rope Pushdown","display":"55 \u00d7 12","weight":55,"reps":12,"date":"2026-07-06","oneRM":77,"sixRM":64,"category":"Chest + Triceps"},{"exercise":"Star Trac Incline Press","display":"115 \u00d7 10","weight":115,"reps":10,"date":"2026-07-06","oneRM":153.33,"sixRM":128,"category":"Chest + Triceps"},{"exercise":"Overhead Rope Triceps Extension","display":"55 \u00d7 12","weight":55,"reps":12,"date":"2026-07-06","oneRM":77,"sixRM":64,"category":"Chest + Triceps"},{"exercise":"Dumbbell Shoulder Press","display":"35 \u00d7 12","weight":35,"reps":12,"date":"2026-07-08","oneRM":49,"sixRM":41,"category":"Shoulders + Legs"},{"exercise":"Dumbbell Lateral Raise","display":"15 \u00d7 12","weight":15,"reps":12,"date":"2026-07-08","oneRM":21,"sixRM":18,"category":"Shoulders + Legs"},{"exercise":"Bent-Over DB Rear-Delt Raise","display":"15 \u00d7 12","weight":15,"reps":12,"date":"2026-07-08","oneRM":21,"sixRM":18,"category":"Shoulders + Legs"},{"exercise":"Cable Face Pull","display":"75 \u00d7 12","weight":75,"reps":12,"date":"2026-07-08","oneRM":105,"sixRM":88,"category":"Shoulders + Legs"}],
       historySessions: [{"date":"2026-04-27","duration":"~20 min","type":"Bodyweight","summary":"Push-ups / Squats / Plank \u2014 baseline session","details":[]},{"date":"2026-04-29","duration":"~20 min","type":"Bodyweight","summary":"Push-ups / Squats / Plank \u2014 all three baseline PRs","details":["Push-Ups \u2014 15 reps","Squats \u2014 30 reps","Plank \u2014 40 sec"]},{"date":"2026-05-02","duration":"25:26","type":"Cardio","summary":"Outdoor walk \u2014 1.17 miles","details":[]},{"date":"2026-05-03","duration":"40:16","type":"Cardio","summary":"Outdoor walk \u2014 2.00 miles (longest walk PR)","details":[]},{"date":"2026-05-08","duration":"29:06","type":"Cardio","summary":"Outdoor walk \u2014 1.43 miles","details":[]},{"date":"2026-05-17","duration":"32:26","type":"Cardio","summary":"Outdoor walk \u2014 1.52 miles","details":[]},{"date":"2026-05-22","duration":"~30 min","type":"Bodyweight","summary":"Push-ups and sit-ups \u2014 5 sets of 10 each","details":["Push-Ups \u2014 5 \u00d7 10","Sit-Ups \u2014 5 \u00d7 10"]},{"date":"2026-05-25","duration":"~30 min","type":"Bodyweight","summary":"Push-ups and sit-ups \u2014 5 sets of 10 each","details":["Push-Ups \u2014 5 \u00d7 10","Sit-Ups \u2014 5 \u00d7 10"]},{"date":"2026-06-05","duration":"25:00","type":"Bodyweight","summary":"100 push-ups \u2014 volume PR","details":["Push-Up Volume \u2014 100 reps in 25:00"]},{"date":"2026-07-05","duration":"27:16","type":"Cardio","summary":"Outdoor walk \u2014 1.35 miles","details":[]},{"date":"2026-07-05","duration":"23:30","type":"Bodyweight","summary":"100 push-ups \u2014 volume PR, 1:30 faster","details":["Push-Up Volume \u2014 100 reps in 23:30"]},{"date":"2026-07-05","duration":"~60 min","type":"Back + Biceps","summary":"First gym session \u2014 partial set history preserved from recorded PRs","details":["Lat Pulldown \u2014 top set 100 \u00d7 12","Cable Row \u2014 top set 100 \u00d7 10","DB Bicep Curl \u2014 top set 25 \u00d7 10","Hammer Curl \u2014 top set 20 \u00d7 10","Lower Back Machine \u2014 top set 110 \u00d7 12"]},{"date":"2026-07-06","duration":"Completed","type":"Chest + Triceps","summary":"10-minute walk (0.50 mi) plus 17 lifting sets","details":["Star Trac Chest Press \u2014 85\u00d712, 115\u00d712, 130\u00d712, 145\u00d710","Cable Fly (per side) \u2014 25\u00d712 \u00d7 3","Rope Pushdown \u2014 45\u00d712, 55\u00d712 \u00d7 3","Star Trac Incline Press \u2014 115\u00d710 \u00d7 3","Overhead Rope Triceps Extension \u2014 55\u00d710, 55\u00d710, 55\u00d712"]},{"date":"2026-07-08","duration":"Completed","type":"Shoulders","summary":"10-minute walk (0.57 mi) plus 15 lifting sets","details":["DB Shoulder Press \u2014 30\u00d712, 35\u00d712, 35\u00d712, 35\u00d79 (failure)","DB Lateral Raise \u2014 15\u00d712 \u00d7 4","Bent-Over DB Rear-Delt Raise \u2014 15\u00d712 \u00d7 4","Cable Face Pull \u2014 55\u00d712, 65\u00d712, 75\u00d712"]}],
-      days: {}
+      days: {"2026-08-05":{"readiness":3,"feelingTags":["Stressed"],"feelingNote":"","dailyGoal":"Just get a workout in","bodyWeight":"","oura":{"readiness":"","sleep":"","activity":"","hours":"","dismissed":false},"warmup":{"enabled":true,"type":"Walk","minutes":"19","distance":".6"},"workoutFocus":"Chest + Triceps","exercises":[{"id":"3c0a576e-5151-4281-aecf-d1b006729094","name":"Star Trac Chest Press","category":"Chest + Triceps","notes":"","sets":[{"weight":"115","reps":"12","failure":false,"warmup":true,"notes":""},{"weight":"145","reps":"13","failure":false,"warmup":false,"notes":""},{"weight":"145","reps":"10","failure":false,"warmup":false,"notes":""},{"weight":"145","reps":"12","failure":false,"warmup":false,"notes":""}]},{"id":"e005f509-625e-447c-be96-95565b1e2c90","name":"Cable Fly","category":"Chest + Triceps","notes":"","sets":[{"weight":"20","reps":"12","failure":false,"warmup":false,"notes":""},{"weight":"25","reps":"12","failure":false,"warmup":false,"notes":""},{"weight":"25","reps":"12","failure":false,"warmup":false,"notes":""},{"weight":"25","reps":"12","failure":false,"warmup":false,"notes":""}]},{"id":"139668fe-c984-494d-8b14-53bbaafbcb22","name":"Rope Pushdown","category":"Chest + Triceps","notes":"","sets":[{"weight":"55","reps":"12","failure":false,"warmup":false,"notes":""},{"weight":"65","reps":"12","failure":false,"warmup":false,"notes":""},{"weight":"65","reps":"12","failure":true,"warmup":false,"notes":""},{"weight":"65","reps":"10","failure":true,"warmup":false,"notes":""}]},{"id":"9ded6907-6d10-4fa8-b481-6300cfc305b7","name":"Overhead Dumbbell Tricep Extensions","category":"Chest + Triceps","notes":"","sets":[{"weight":"30","reps":"16","failure":false,"warmup":false,"notes":""},{"weight":"40","reps":"12","failure":false,"warmup":false,"notes":""},{"weight":"40","reps":"12","failure":false,"warmup":false,"notes":""}]}],"completed":true,"updatedAt":"2026-08-05T19:13:49.747Z"}}
     };
   }
 
@@ -697,6 +859,7 @@
       feelingNote: '',
       dailyGoal: '',
       bodyWeight: '',
+      oura: { readiness:'', sleep:'', activity:'', hours:'', dismissed:false },
       warmup: { enabled: false, type: 'Walk', minutes: '', distance: '' },
       workoutFocus: 'Chest + Triceps',
       exercises: [],
@@ -711,9 +874,11 @@
       const defaults = defaultState();
       if (!raw) return defaults;
       const parsed = JSON.parse(raw);
+      const migratedDays = Number(parsed.version || 0) < 3 ? {...defaults.days,...(parsed.days||{})} : (parsed.days||{});
       return {
         ...defaults,
         ...parsed,
+        version: 3,
         settings:{...defaults.settings,...(parsed.settings||{})},
         monthlyGoals:{...defaults.monthlyGoals,...(parsed.monthlyGoals||{})},
         weeklyGoals:{...defaults.weeklyGoals,...(parsed.weeklyGoals||{})},
@@ -721,7 +886,7 @@
         historyWeight: defaults.historyWeight,
         historicalPRs: defaults.historicalPRs,
         historySessions: defaults.historySessions,
-        days: parsed.days || {}
+        days: migratedDays
       };
     } catch (error) {
       console.warn(error);
@@ -772,7 +937,7 @@
   function prettyDate(dateStr, options={month:'short',day:'numeric'}) { return parseDate(dateStr).toLocaleDateString('en-US', options); }
   function dayHasData(day) {
     if (!day) return false;
-    return Boolean(day.completed || day.bodyWeight || day.dailyGoal || day.feelingNote || day.feelingTags?.length || day.warmup?.enabled || day.exercises?.length);
+    return Boolean(day.completed || day.bodyWeight || day.dailyGoal || day.feelingNote || day.feelingTags?.length || Object.values(day.oura||{}).some(v=>v && v!==false) || day.warmup?.enabled || day.exercises?.length);
   }
 
   function getDay(dateStr) { return state.days[dateStr] ? clone(state.days[dateStr]) : blankDay(); }
@@ -786,6 +951,7 @@
   function initialize() {
     buildFocusSelect();
     buildFeelingTags();
+    buildWorkoutModePickers();
     bindNavigation();
     bindControls();
     $('selectedDate').value = selectedDate;
@@ -854,6 +1020,10 @@
     $('feelingNote').addEventListener('input', e => workingDay.feelingNote = e.target.value);
     $('dailyGoal').addEventListener('input', e => workingDay.dailyGoal = e.target.value);
     $('bodyWeight').addEventListener('input', e => workingDay.bodyWeight = e.target.value);
+    $('ouraPromptEnabled').addEventListener('change', e => { state.settings.ouraPrompts = e.target.checked; saveState(); });
+    ['ouraReadiness','ouraSleep','ouraActivity','ouraHours'].forEach(id => $(id).addEventListener('input', e => {
+      const key = id.replace('oura','').toLowerCase(); workingDay.oura = workingDay.oura || {}; workingDay.oura[key] = e.target.value;
+    }));
 
     $('warmupEnabled').addEventListener('change', e => {
       workingDay.warmup.enabled = e.target.checked;
@@ -876,6 +1046,26 @@
     });
     $('loadTemplateBtn').addEventListener('click', loadTemplate);
     $('copyLastBtn').addEventListener('click', copyLastSimilarWorkout);
+    $('startWorkoutModeBtn').addEventListener('click', openWorkoutMode);
+    $('shareWorkoutBtn').addEventListener('click', shareWorkoutSummary);
+    $('resumeWorkoutBtn').addEventListener('click', openWorkoutMode);
+    $('exitWorkoutModeBtn').addEventListener('click', closeWorkoutMode);
+    $('finishWorkoutBtn').addEventListener('click', openFinishSheet);
+    $('wmAddExerciseBtn').addEventListener('click', openExercisePicker);
+    $('closeExercisePickerBtn').addEventListener('click', closeExercisePicker);
+    $('wmPickerFocus').addEventListener('change', renderWorkoutPickerOptions);
+    $('wmAddCustomBtn').addEventListener('click', addCustomExerciseFromWorkoutMode);
+    $('wmAddOuraBtn').addEventListener('click', () => openOuraSheet('Add context for this workout whenever it is useful.'));
+    $('closeOuraSheetBtn').addEventListener('click', closeOuraSheet);
+    $('saveOuraSheetBtn').addEventListener('click', saveOuraFromSheet);
+    $('dismissOuraPromptBtn').addEventListener('click', dismissOuraPrompt);
+    $('closeFinishSheetBtn').addEventListener('click', closeFinishSheet);
+    $('confirmFinishBtn').addEventListener('click', confirmFinishWorkout);
+    $('shareFromFinishBtn').addEventListener('click', shareWorkoutSummary);
+    $('downloadSessionJsonBtn').addEventListener('click', downloadSessionJson);
+    $('wmMain').addEventListener('click', handleWorkoutModeClick);
+    $('wmExerciseDrawer').addEventListener('click', handleWorkoutDrawerClick);
+    $('wmPickerOptions').addEventListener('click', handleWorkoutPickerClick);
     $('saveDayBtn').addEventListener('click', () => commitWorkingDay(true));
     $('clearDayBtn').addEventListener('click', clearCurrentDay);
     $('workoutCompleted').addEventListener('change', e => { workingDay.completed = e.target.checked; renderDaySummary(); });
@@ -924,6 +1114,12 @@
     $('feelingNote').value = workingDay.feelingNote || '';
     $('dailyGoal').value = workingDay.dailyGoal || '';
     $('bodyWeight').value = workingDay.bodyWeight || '';
+    workingDay.oura = {...blankDay().oura,...(workingDay.oura||{})};
+    $('ouraPromptEnabled').checked = state.settings.ouraPrompts !== false;
+    $('ouraReadiness').value = workingDay.oura.readiness || '';
+    $('ouraSleep').value = workingDay.oura.sleep || '';
+    $('ouraActivity').value = workingDay.oura.activity || '';
+    $('ouraHours').value = workingDay.oura.hours || '';
     $('warmupEnabled').checked = Boolean(workingDay.warmup?.enabled);
     $('warmupFields').classList.toggle('hidden', !workingDay.warmup?.enabled);
     $('warmupType').value = workingDay.warmup?.type || 'Walk';
@@ -935,6 +1131,7 @@
     renderFeelingTags();
     renderExercises();
     renderDaySummary();
+    updateActiveWorkoutBar();
   }
 
   function renderFeelingTags() {
@@ -954,6 +1151,7 @@
   function addExercise(name, category) {
     if (!name) return;
     workingDay.exercises.push(newExercise(name, category));
+    wmExerciseIndex = workingDay.exercises.length - 1;
     renderExercises();
     queueAutoSave();
     toast(`${name} added`);
@@ -1073,6 +1271,216 @@
     if (sets.length) parts.push(`${workingDay.exercises.length} exercises · ${sets.length} logged sets · ${Math.round(volume).toLocaleString()} lb volume`);
     box.textContent = parts.join(' | ');
     box.classList.remove('hidden');
+    updateActiveWorkoutBar();
+  }
+
+
+  function buildWorkoutModePickers() {
+    $('wmPickerFocus').innerHTML = Object.keys(exerciseLibrary).map(x=>`<option value="${escapeAttr(x)}">${escapeHtml(x)}</option>`).join('');
+    renderWorkoutPickerOptions();
+  }
+
+  function openWorkoutMode() {
+    persistWorkingDaySilently();
+    if (!workingDay) loadDayIntoEditor(selectedDate);
+    wmExerciseIndex = Math.min(wmExerciseIndex, Math.max(0,workingDay.exercises.length-1));
+    $('workoutMode').classList.add('open');
+    $('workoutMode').setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+    renderWorkoutMode();
+    const reason = shouldPromptOura();
+    if (reason && state.settings.ouraPrompts !== false && !workingDay.oura?.dismissed) setTimeout(()=>openOuraSheet(reason),250);
+  }
+
+  function closeWorkoutMode() {
+    persistWorkingDaySilently();
+    $('workoutMode').classList.remove('open');
+    $('workoutMode').setAttribute('aria-hidden','true');
+    document.body.style.overflow='';
+    renderExercises();
+    renderDaySummary();
+    updateActiveWorkoutBar();
+  }
+
+  function completedSets(ex) { return (ex?.sets||[]).filter(s=>Number(s.reps)>0); }
+  function allCompletedSets() { return (workingDay?.exercises||[]).flatMap(completedSets); }
+
+  function renderWorkoutMode() {
+    if (!workingDay) return;
+    $('wmFocus').textContent = workingDay.workoutFocus || 'Workout';
+    $('wmDate').textContent = prettyDate(selectedDate,{weekday:'short',month:'short',day:'numeric'});
+    const completed = allCompletedSets().length;
+    const planned = Math.max(completed, workingDay.exercises.reduce((sum,ex)=>sum+Math.max(1,ex.sets.length),0));
+    $('wmProgressBar').style.width = `${planned ? Math.min(100,(completed/planned)*100) : 0}%`;
+    const insight=$('wmInsight');
+    if (wmInsightMessage) { insight.innerHTML=`<strong>${escapeHtml(wmInsightMessage.split('|')[0])}</strong><span>${escapeHtml(wmInsightMessage.split('|')[1]||'')}</span>`; insight.classList.remove('hidden'); }
+    else insight.classList.add('hidden');
+
+    const ex = workingDay.exercises[wmExerciseIndex];
+    if (!ex) {
+      $('wmMain').innerHTML=`<article class="wm-card wm-empty"><div class="eyebrow">Build as you go</div><h2>Add your first exercise</h2><p>You do not need to load a workout ahead of time. Add the machine or movement you are standing at, log the sets, then add the next one.</p><button class="btn primary" data-wm-action="add-exercise">+ Add Exercise</button></article>`;
+      $('wmExerciseDrawer').innerHTML='';
+      updateActiveWorkoutBar();
+      return;
+    }
+    const logged=completedSets(ex);
+    const draft=ex.sets.find(s=>!Number(s.reps)) || {weight:'',reps:'',failure:false,warmup:false,notes:''};
+    const previous=findPreviousBest(ex.name);
+    $('wmMain').innerHTML=`<article class="wm-card">
+      <div class="wm-set-label">Set ${logged.length+1}</div>
+      <h2 class="wm-ex-name">${escapeHtml(ex.name)}</h2>
+      <div class="wm-previous">${previous ? `Previous best: ${escapeHtml(previous.display)} · ${prettyDate(previous.date)}` : 'No previous baseline yet'}</div>
+      <div class="wm-inputs">
+        <label class="field"><span>Weight</span><input id="wmWeight" inputmode="decimal" type="number" min="0" step="0.5" value="${escapeAttr(draft.weight)}" placeholder="lb" /></label>
+        <label class="field"><span>Reps</span><input id="wmReps" inputmode="numeric" type="number" min="0" step="1" value="${escapeAttr(draft.reps)}" placeholder="reps" /></label>
+      </div>
+      <div class="wm-quick">
+        <button class="btn small" data-wm-action="minus-five">−5 lb</button>
+        <button class="btn small" data-wm-action="plus-five">+5 lb</button>
+        <button class="btn small" data-wm-action="repeat-last">Repeat Last</button>
+        <button class="btn small" data-wm-action="clear-entry">Clear</button>
+      </div>
+      <div class="wm-toggle-row">
+        <label class="wm-toggle"><input id="wmWarmup" type="checkbox" ${draft.warmup?'checked':''}/> Warm-up</label>
+        <label class="wm-toggle"><input id="wmFailure" type="checkbox" ${draft.failure?'checked':''}/> Failure</label>
+      </div>
+      <label class="field"><span>Set note</span><input id="wmSetNote" value="${escapeAttr(draft.notes||'')}" placeholder="Optional" /></label>
+      <button class="btn primary wm-save" data-wm-action="save-set">Save Set</button>
+      <div class="wm-nav"><button class="btn" data-wm-action="prev-exercise">← Previous</button><button class="btn" data-wm-action="add-exercise">+ Exercise</button><button class="btn" data-wm-action="next-exercise">Next →</button></div>
+    </article>`;
+
+    $('wmExerciseDrawer').innerHTML=workingDay.exercises.map((item,i)=>{
+      const sets=completedSets(item);
+      const top=sets.sort((a,b)=>(Number(b.weight)*Number(b.reps))-(Number(a.weight)*Number(a.reps)))[0];
+      return `<button class="wm-ex-row ${i===wmExerciseIndex?'active':''}" data-wm-ex-index="${i}"><span><strong>${escapeHtml(item.name)}</strong><small>${sets.length} logged set${sets.length===1?'':'s'}${top?` · last ${escapeHtml(top.weight)} × ${escapeHtml(top.reps)}`:''}</small></span><span>›</span></button>`;
+    }).join('');
+    updateActiveWorkoutBar();
+  }
+
+  function handleWorkoutModeClick(event) {
+    const action=event.target.closest('[data-wm-action]')?.dataset.wmAction;
+    if (!action) return;
+    if (action==='add-exercise') return openExercisePicker();
+    const ex=workingDay.exercises[wmExerciseIndex]; if(!ex) return;
+    if(action==='minus-five'||action==='plus-five'){
+      const input=$('wmWeight'); input.value=Math.max(0,(Number(input.value)||0)+(action==='plus-five'?5:-5));
+    } else if(action==='repeat-last'){
+      const last=[...ex.sets].reverse().find(s=>Number(s.reps)>0);
+      if(last){$('wmWeight').value=last.weight;$('wmReps').value=last.reps;$('wmWarmup').checked=false;$('wmFailure').checked=false;}
+      else toast('No earlier set to repeat');
+    } else if(action==='clear-entry'){
+      $('wmWeight').value='';$('wmReps').value='';$('wmWarmup').checked=false;$('wmFailure').checked=false;$('wmSetNote').value='';
+    } else if(action==='save-set') saveWorkoutModeSet();
+    else if(action==='prev-exercise'){wmExerciseIndex=Math.max(0,wmExerciseIndex-1);renderWorkoutMode();}
+    else if(action==='next-exercise'){wmExerciseIndex=Math.min(workingDay.exercises.length-1,wmExerciseIndex+1);renderWorkoutMode();}
+  }
+
+  function saveWorkoutModeSet() {
+    const ex=workingDay.exercises[wmExerciseIndex];
+    const weight=$('wmWeight').value, reps=$('wmReps').value;
+    if(!Number(reps)) return toast('Enter reps before saving');
+    const oldBest=findPreviousBest(ex.name);
+    const set={weight,reps,failure:$('wmFailure').checked,warmup:$('wmWarmup').checked,notes:$('wmSetNote').value.trim()};
+    const blankIndex=ex.sets.findIndex(s=>!Number(s.reps));
+    if(blankIndex>=0) ex.sets[blankIndex]=set; else ex.sets.push(set);
+    const oneRM=(Number(weight)||0)*(1+(Number(reps)||0)/30);
+    if(Number(weight)>0 && (!oldBest?.oneRM || oneRM>Number(oldBest.oneRM)+.01)){
+      wmInsightMessage=`New PR: ${ex.name}|${weight} × ${reps} · Estimated 1RM ${Math.round(oneRM)} · 6RM ${Math.round(oneRM/1.2)}`;
+      if(state.settings.ouraPrompts!==false && !hasOuraScores()) setTimeout(()=>openOuraSheet('New PR recorded. Add Oura scores if you want to compare recovery and performance.'),550);
+    }
+    persistWorkingDaySilently();
+    renderExercises(); renderDaySummary(); renderAllSummaries(); renderWorkoutMode();
+    toast(`${ex.name}: ${weight || 0} × ${reps} saved`);
+  }
+
+  function handleWorkoutDrawerClick(event) {
+    const row=event.target.closest('[data-wm-ex-index]'); if(!row)return;
+    wmExerciseIndex=Number(row.dataset.wmExIndex); renderWorkoutMode(); window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function openExercisePicker() {
+    $('wmPickerFocus').value=workingDay.workoutFocus || 'Chest + Triceps'; renderWorkoutPickerOptions();
+    $('exercisePickerSheet').classList.add('open'); $('exercisePickerSheet').setAttribute('aria-hidden','false');
+  }
+  function closeExercisePicker() { $('exercisePickerSheet').classList.remove('open'); $('exercisePickerSheet').setAttribute('aria-hidden','true'); }
+  function renderWorkoutPickerOptions() {
+    const focus=$('wmPickerFocus').value || 'Chest + Triceps';
+    $('wmPickerOptions').innerHTML=(exerciseLibrary[focus]||[]).map(name=>`<button class="btn picker-option" data-picker-name="${escapeAttr(name)}">${escapeHtml(name)}</button>`).join('');
+  }
+  function handleWorkoutPickerClick(event) {
+    const btn=event.target.closest('[data-picker-name]'); if(!btn)return;
+    const focus=$('wmPickerFocus').value; workingDay.workoutFocus=focus; $('workoutFocus').value=focus; updateExerciseSelect();
+    addExercise(btn.dataset.pickerName,focus); closeExercisePicker(); renderWorkoutMode();
+  }
+  function addCustomExerciseFromWorkoutMode() {
+    const name=$('wmCustomExercise').value.trim(); if(!name)return toast('Type an exercise name');
+    const focus=$('wmPickerFocus').value; workingDay.workoutFocus=focus; addExercise(name,focus); $('wmCustomExercise').value=''; closeExercisePicker(); renderWorkoutMode();
+  }
+
+  function findPreviousBest(exerciseName) {
+    let candidates=(state.historicalPRs||[]).filter(p=>p.exercise===exerciseName);
+    Object.entries(state.days||{}).forEach(([date,day])=>{
+      if(date===selectedDate)return;
+      (day.exercises||[]).filter(ex=>ex.name===exerciseName).forEach(ex=>completedSets(ex).forEach(set=>{
+        const w=Number(set.weight)||0,r=Number(set.reps)||0;if(w&&r)candidates.push({exercise:exerciseName,display:`${w} × ${r}`,weight:w,reps:r,date,oneRM:w*(1+r/30)});
+      }));
+    });
+    return candidates.sort((a,b)=>(Number(b.oneRM)||0)-(Number(a.oneRM)||0))[0]||null;
+  }
+
+  function hasOuraScores(){const o=workingDay?.oura||{};return Boolean(o.readiness||o.sleep||o.activity||o.hours);}
+  function mostRecentWorkoutBefore(dateStr){
+    const dates=[];(state.historySessions||[]).forEach(x=>dates.push(x.date));Object.entries(state.days||{}).forEach(([d,day])=>{if(d<dateStr&&(day.completed||day.exercises?.some(ex=>completedSets(ex).length)))dates.push(d)});
+    return dates.sort().reverse()[0]||null;
+  }
+  function shouldPromptOura(){
+    if(hasOuraScores()||state.settings.ouraPrompts===false)return '';
+    const prev=mostRecentWorkoutBefore(selectedDate);
+    if(prev){const gap=Math.round((parseDate(selectedDate)-parseDate(prev))/86400000);if(gap>=7)return `It has been ${gap} days since the last logged workout. Oura scores could add useful context.`;}
+    const hash=Number(selectedDate.slice(-2))+(workingDay.exercises?.length||0);
+    if(hash%4===1)return 'Optional recovery check-in: add Oura scores if today feels noticeably different.';
+    return '';
+  }
+  function openOuraSheet(reason='Optional recovery check-in.'){
+    workingDay.oura={...blankDay().oura,...(workingDay.oura||{})}; $('ouraPromptReason').textContent=reason;
+    $('sheetOuraReadiness').value=workingDay.oura.readiness||'';$('sheetOuraSleep').value=workingDay.oura.sleep||'';$('sheetOuraActivity').value=workingDay.oura.activity||'';$('sheetOuraHours').value=workingDay.oura.hours||'';
+    $('ouraSheet').classList.add('open');$('ouraSheet').setAttribute('aria-hidden','false');
+  }
+  function closeOuraSheet(){$('ouraSheet').classList.remove('open');$('ouraSheet').setAttribute('aria-hidden','true');}
+  function saveOuraFromSheet(){
+    workingDay.oura={readiness:$('sheetOuraReadiness').value,sleep:$('sheetOuraSleep').value,activity:$('sheetOuraActivity').value,hours:$('sheetOuraHours').value,dismissed:false};
+    $('ouraReadiness').value=workingDay.oura.readiness;$('ouraSleep').value=workingDay.oura.sleep;$('ouraActivity').value=workingDay.oura.activity;$('ouraHours').value=workingDay.oura.hours;
+    persistWorkingDaySilently();closeOuraSheet();toast('Oura scores saved');
+  }
+  function dismissOuraPrompt(){workingDay.oura=workingDay.oura||blankDay().oura;workingDay.oura.dismissed=true;persistWorkingDaySilently();closeOuraSheet();}
+
+  function workoutSummaryText(){
+    if(!workingDay)return '';
+    const lines=[`${prettyDate(selectedDate,{month:'numeric',day:'numeric'})} ${workingDay.workoutFocus}`];
+    if(workingDay.warmup?.enabled)lines.push(`Warm-up: ${workingDay.warmup.minutes||0} min${workingDay.warmup.distance?`, ${workingDay.warmup.distance} mi`:''}`);
+    (workingDay.exercises||[]).forEach(ex=>{const sets=completedSets(ex);if(sets.length)lines.push(`${ex.name}: ${sets.map(s=>`${s.weight||0}×${s.reps}${s.warmup?' WU':''}${s.failure?' F':''}`).join(', ')}`)});
+    if(hasOuraScores()){const o=workingDay.oura;lines.push(`Oura: Readiness ${o.readiness||'—'}, Sleep ${o.sleep||'—'}, Activity ${o.activity||'—'}${o.hours?`, ${o.hours}h sleep`:''}`)}
+    return lines.join('\n');
+  }
+  async function shareWorkoutSummary(){
+    persistWorkingDaySilently();const text=workoutSummaryText();if(!text)return toast('No workout to share yet');
+    try{if(navigator.share)await navigator.share({title:`TJ Fitness ${prettyDate(selectedDate)}`,text});else{await navigator.clipboard.writeText(text);toast('Workout copied');}}catch(error){if(error?.name!=='AbortError'){await navigator.clipboard.writeText(text);toast('Workout copied');}}
+  }
+  function downloadSessionJson(){
+    persistWorkingDaySilently();const blob=new Blob([JSON.stringify({date:selectedDate,day:state.days[selectedDate]||workingDay},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`TJ-Workout-${selectedDate}.json`;a.click();URL.revokeObjectURL(a.href);
+  }
+
+  function openFinishSheet(){
+    const sets=allCompletedSets(),volume=sets.reduce((sum,x)=>sum+(Number(x.weight)||0)*(Number(x.reps)||0),0);
+    $('finishRecap').innerHTML=`<div class="recap-list"><div class="recap-row"><span>Workout</span><span>${escapeHtml(workingDay.workoutFocus)}</span></div><div class="recap-row"><span>Exercises</span><span>${workingDay.exercises.filter(ex=>completedSets(ex).length).length}</span></div><div class="recap-row"><span>Logged sets</span><span>${sets.length}</span></div><div class="recap-row"><span>Total reps</span><span>${sets.reduce((a,s)=>a+(Number(s.reps)||0),0)}</span></div><div class="recap-row"><span>Entered volume</span><span>${Math.round(volume).toLocaleString()} lb</span></div>${workingDay.warmup?.enabled?`<div class="recap-row"><span>Cardio</span><span>${escapeHtml(workingDay.warmup.minutes||0)} min · ${escapeHtml(workingDay.warmup.distance||0)} mi</span></div>`:''}</div><pre style="white-space:pre-wrap;color:var(--muted);font-family:inherit">${escapeHtml(workoutSummaryText())}</pre>`;
+    $('finishSheet').classList.add('open');$('finishSheet').setAttribute('aria-hidden','false');
+  }
+  function closeFinishSheet(){$('finishSheet').classList.remove('open');$('finishSheet').setAttribute('aria-hidden','true');}
+  function confirmFinishWorkout(){workingDay.completed=true;$('workoutCompleted').checked=true;commitWorkingDay(false);closeFinishSheet();closeWorkoutMode();toast('Workout finished and saved');}
+
+  function updateActiveWorkoutBar(){
+    const bar=$('activeWorkoutBar');if(!workingDay||!workingDay.exercises?.length||workingDay.completed){bar.classList.remove('show');return;}
+    const ex=workingDay.exercises[Math.min(wmExerciseIndex,workingDay.exercises.length-1)];bar.classList.add('show');$('activeBarTitle').textContent=ex?.name||workingDay.workoutFocus;$('activeBarMeta').textContent=`${allCompletedSets().length} sets logged · tap to resume`;
   }
 
   function saveMonthlyGoalNumbers() {
@@ -1338,7 +1746,7 @@
 
     const daily=[]; const sets=[]; const weigh=[];
     Object.entries(state.days).filter(([date])=>isAugust(date)).sort(([a],[b])=>a.localeCompare(b)).forEach(([date,day])=>{
-      daily.push({Date:date,'Workout Focus':day.workoutFocus||'',Completed:day.completed?'Yes':'No',Readiness:day.readiness||'', 'Feeling Tags':(day.feelingTags||[]).join('; '),'Feeling Note':day.feelingNote||'','Daily Goal':day.dailyGoal||'','Cardio Enabled':day.warmup?.enabled?'Yes':'No','Cardio Type':day.warmup?.type||'','Cardio Minutes':day.warmup?.minutes||'','Cardio Distance Miles':day.warmup?.distance||'','Body Weight':day.bodyWeight||''});
+      daily.push({Date:date,'Workout Focus':day.workoutFocus||'',Completed:day.completed?'Yes':'No',Readiness:day.readiness||'', 'Feeling Tags':(day.feelingTags||[]).join('; '),'Feeling Note':day.feelingNote||'','Daily Goal':day.dailyGoal||'','Cardio Enabled':day.warmup?.enabled?'Yes':'No','Cardio Type':day.warmup?.type||'','Cardio Minutes':day.warmup?.minutes||'','Cardio Distance Miles':day.warmup?.distance||'','Body Weight':day.bodyWeight||'','Oura Readiness':day.oura?.readiness||'','Oura Sleep':day.oura?.sleep||'','Oura Activity':day.oura?.activity||'','Oura Hours Slept':day.oura?.hours||''});
       (day.exercises||[]).forEach((ex,exIndex)=>ex.sets.forEach((set,setIndex)=>sets.push({Date:date,'Workout Focus':day.workoutFocus||'',Exercise:ex.name,Category:ex.category||'', 'Exercise Order':exIndex+1,'Set Number':setIndex+1,Weight:set.weight||'',Reps:set.reps||'',Warmup:set.warmup?'Yes':'No',Failure:set.failure?'Yes':'No',Notes:set.notes||''})));
     });
     getWeighIns().forEach(row=>weigh.push({Date:row.date,Weight:row.weight,'August Goal':Number(state.settings.augustGoalWeight)||240,'Long-Term Goal':Number(state.settings.goalWeight)||225,Source:row.historical?'History':'August'}));
@@ -1373,7 +1781,7 @@
       if (dailySheet) {
         XLSX.utils.sheet_to_json(dailySheet).forEach(row=>{
           const date=normalizeExcelDate(row.Date); if(!isAugust(date))return;
-          const d=blankDay(); d.workoutFocus=row['Workout Focus']||'Chest + Triceps'; d.completed=String(row.Completed).toLowerCase()==='yes'; d.readiness=Number(row.Readiness)||3; d.feelingTags=String(row['Feeling Tags']||'').split(';').map(x=>x.trim()).filter(Boolean); d.feelingNote=row['Feeling Note']||''; d.dailyGoal=row['Daily Goal']||''; d.bodyWeight=row['Body Weight']||''; d.warmup={enabled:String(row['Cardio Enabled']||row['Warm-Up Enabled']).toLowerCase()==='yes',type:row['Cardio Type']||row['Warm-Up Type']||'Walk',minutes:row['Cardio Minutes']||row['Warm-Up Minutes']||'',distance:row['Cardio Distance Miles']||row['Warm-Up Distance Miles']||''}; imported.days[date]=d;
+          const d=blankDay(); d.workoutFocus=row['Workout Focus']||'Chest + Triceps'; d.completed=String(row.Completed).toLowerCase()==='yes'; d.readiness=Number(row.Readiness)||3; d.feelingTags=String(row['Feeling Tags']||'').split(';').map(x=>x.trim()).filter(Boolean); d.feelingNote=row['Feeling Note']||''; d.dailyGoal=row['Daily Goal']||''; d.bodyWeight=row['Body Weight']||''; d.warmup={enabled:String(row['Cardio Enabled']||row['Warm-Up Enabled']).toLowerCase()==='yes',type:row['Cardio Type']||row['Warm-Up Type']||'Walk',minutes:row['Cardio Minutes']||row['Warm-Up Minutes']||'',distance:row['Cardio Distance Miles']||row['Warm-Up Distance Miles']||''}; d.oura={readiness:row['Oura Readiness']||'',sleep:row['Oura Sleep']||'',activity:row['Oura Activity']||'',hours:row['Oura Hours Slept']||'',dismissed:false}; imported.days[date]=d;
         });
       }
       const setsSheet=wb.Sheets['August Sets']||wb.Sheets['Sets'];
