@@ -3,1132 +3,182 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111111">
+<meta name="theme-color" content="#111">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="TJ Journal">
-<title>TJ Training Journal</title>
+<meta name="apple-mobile-web-app-title" content="Index">
+<title>Index — TJ Training Journal</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{
-  --bg:#d8d8d4;
-  --ink:#111;
-  --muted:#4f4f4f;
-  --line:#d6d6d6;
-  --rule:#d74343;
-  --paper:#fbfbf8;
-  --paper-shadow:#ecece7;
-  --cover:#101010;
-  --cover2:#262626;
-  --tab:#efefea;
-  --tab-active:#ffffff;
-  --accent:#111;
-  --success:#1d6f42;
-  --radius:22px;
-  --shadow:0 18px 40px rgba(0,0,0,.18);
-  --mono:"Courier New", ui-monospace, monospace;
-  --serif:"Times New Roman", Georgia, serif;
-}
-*{box-sizing:border-box}
-html,body{margin:0}
-body{
-  min-height:100vh;
-  background:
-    radial-gradient(circle at top left, rgba(255,255,255,.55), transparent 28%),
-    linear-gradient(180deg,#cfcfca 0%, #d9d9d4 40%, #d0d0cb 100%);
-  color:var(--ink);
-  font-family:var(--serif);
-}
-button,input{font:inherit}
-button{cursor:pointer}
-.hidden{display:none!important}
-
-.app{
-  width:min(1200px, calc(100% - 22px));
-  margin:22px auto;
-}
-
-.headerbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:14px;
-  margin-bottom:14px;
-  padding:10px 14px;
-  border:2px solid #111;
-  border-radius:14px;
-  background:rgba(255,255,255,.66);
-  backdrop-filter: blur(8px);
-  box-shadow:0 8px 20px rgba(0,0,0,.08);
-}
-.brand{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-.badge-round{
-  width:40px;height:40px;border-radius:50%;
-  display:grid;place-items:center;
-  background:#111;color:#fff;
-  font:700 13px var(--mono);
-}
-.brand h1{
-  margin:0;
-  font-size:20px;
-  text-transform:uppercase;
-  letter-spacing:.04em;
-}
-.brand small{
-  display:block;
-  font:700 11px var(--mono);
-  color:var(--muted);
-  text-transform:uppercase;
-}
-.statusline{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font:700 11px var(--mono);
-  text-transform:uppercase;
-  color:var(--muted);
-}
-.statusdot{
-  width:10px;height:10px;border-radius:50%;
-  background:#888;
-}
-.statusdot.live{background:var(--success); box-shadow:0 0 0 4px rgba(29,111,66,.14)}
-.header-actions{display:flex;gap:8px;align-items:center}
-
-.btn{
-  border:1.5px solid #111;
-  background:#fff;
-  color:#111;
-  padding:10px 12px;
-  border-radius:10px;
-  font:700 11px var(--mono);
-  text-transform:uppercase;
-}
-.btn.dark{background:#111;color:#fff}
-.btn.ghost{background:transparent}
-.btn.small{padding:8px 10px;font-size:10px}
-
-.book-wrap{
-  position:relative;
-  display:flex;
-  gap:16px;
-  align-items:flex-start;
-}
-.tabs{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  padding-top:40px;
-}
-.tab{
-  width:118px;
-  padding:12px 12px 12px 16px;
-  border:2px solid #111;
-  border-left:none;
-  border-radius:0 12px 12px 0;
-  background:var(--tab);
-  font:700 11px var(--mono);
-  text-transform:uppercase;
-  text-align:left;
-  color:#333;
-  box-shadow:0 5px 12px rgba(0,0,0,.08);
-}
-.tab.active{
-  background:var(--tab-active);
-  transform:translateX(6px);
-}
-.tab .tiny{
-  display:block;
-  margin-top:4px;
-  font-size:10px;
-  color:#666;
-  text-transform:none;
-}
-
-.book{
-  flex:1;
-  min-height:820px;
-  position:relative;
-}
-.book-shadow{
-  position:absolute; inset:20px -10px -10px 20px;
-  background:rgba(0,0,0,.08);
-  filter:blur(22px);
-  border-radius:24px;
-}
-.notebook{
-  position:relative;
-  min-height:820px;
-  border-radius:24px;
-  box-shadow:var(--shadow);
-  overflow:hidden;
-}
-.spine{
-  position:absolute;
-  top:0; bottom:0; left:26px;
-  width:40px;
-  background:
-    repeating-linear-gradient(
-      180deg,
-      transparent 0 17px,
-      rgba(0,0,0,.55) 17px 20px,
-      transparent 20px 37px
-    );
-  z-index:4;
-  pointer-events:none;
-}
-
-.page{
-  position:absolute;
-  inset:0;
-  opacity:0;
-  pointer-events:none;
-  transform-origin:left center;
-  transform:perspective(1500px) rotateY(-8deg) translateX(18px);
-  transition:opacity .33s ease, transform .42s ease;
-}
-.page.active{
-  opacity:1;
-  pointer-events:auto;
-  transform:perspective(1500px) rotateY(0deg) translateX(0);
-  z-index:2;
-}
-.page.turn-out{
-  opacity:0;
-  transform:perspective(1500px) rotateY(10deg) translateX(-8px);
-}
-
-.cover{
-  position:absolute; inset:0;
-  padding:58px 46px 50px 86px;
-  background:
-    radial-gradient(circle at 20% 15%, rgba(255,255,255,.08), transparent 16%),
-    radial-gradient(circle at 80% 80%, rgba(255,255,255,.05), transparent 20%),
-    linear-gradient(145deg,var(--cover2),var(--cover));
-  color:#fff;
-}
-.cover::before{
-  content:"";
-  position:absolute; inset:18px;
-  border:2px solid rgba(255,255,255,.22);
-  border-radius:16px;
-}
-.cover h2{
-  margin:0 0 4px 0;
-  font-size:44px;
-  letter-spacing:.04em;
-  text-transform:uppercase;
-}
-.cover p{
-  margin:0;
-  color:rgba(255,255,255,.8);
-  line-height:1.6;
-}
-.cover-kicker{
-  font:700 12px var(--mono);
-  letter-spacing:.15em;
-  text-transform:uppercase;
-  color:rgba(255,255,255,.7);
-  margin-bottom:18px;
-}
-.cover-grid{
-  margin-top:28px;
-  display:grid;
-  grid-template-columns:1.2fr .8fr;
-  gap:18px;
-}
-.panel{
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.16);
-  border-radius:16px;
-  padding:18px;
-  backdrop-filter: blur(6px);
-}
-.panel h3{
-  margin:0 0 10px 0;
-  font-size:18px;
-  text-transform:uppercase;
-}
-.panel .meta{
-  font:700 11px var(--mono);
-  color:rgba(255,255,255,.78);
-  text-transform:uppercase;
-}
-.formgrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-top:10px;
-}
-.formgrid.full{
-  grid-template-columns:1fr;
-}
-.field label{
-  display:block;
-  font:700 10px var(--mono);
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  margin-bottom:6px;
-  color:rgba(255,255,255,.8);
-}
-.field input{
-  width:100%;
-  padding:12px 12px;
-  border-radius:10px;
-  border:1.5px solid rgba(255,255,255,.24);
-  background:rgba(255,255,255,.95);
-  color:#111;
-}
-.cover-actions{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-top:12px;
-}
-.cover-note{
-  margin-top:12px;
-  font:12px/1.5 var(--mono);
-  color:rgba(255,255,255,.74);
-}
-.cover-stats{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-.statcard{
-  border:1px solid rgba(255,255,255,.16);
-  background:rgba(255,255,255,.07);
-  border-radius:14px;
-  padding:12px;
-}
-.statcard span{
-  display:block;
-  font:700 10px var(--mono);
-  text-transform:uppercase;
-  color:rgba(255,255,255,.72);
-}
-.statcard strong{
-  display:block;
-  margin-top:6px;
-  font:700 23px var(--mono);
-  color:#fff;
-}
-
-.paper{
-  position:absolute; inset:0;
-  padding:38px 34px 44px 92px;
-  background:
-    linear-gradient(to right, transparent 0 74px, rgba(215,67,67,.95) 74px 76px, transparent 76px 100%),
-    repeating-linear-gradient(
-      180deg,
-      var(--paper) 0 34px,
-      var(--line) 34px 35px
-    );
-  background-color:var(--paper);
-}
-.paper::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(90deg, rgba(0,0,0,.04), transparent 9%, transparent 92%, rgba(0,0,0,.03));
-  pointer-events:none;
-}
-.page-header{
-  position:relative;
-  z-index:1;
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:12px;
-  margin-bottom:22px;
-}
-.page-title{
-  font-size:34px;
-  line-height:1;
-  margin:0;
-  text-transform:uppercase;
-  letter-spacing:.03em;
-}
-.page-sub{
-  font:700 11px var(--mono);
-  color:var(--muted);
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  margin-top:5px;
-}
-.page-tools{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
-}
-.searchbar{
-  min-width:min(320px, 100%);
-  max-width:420px;
-  width:100%;
-  padding:12px 14px;
-  border:1.5px solid #111;
-  border-radius:12px;
-  background:#fff;
-  font-size:16px;
-}
-.filter-row{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-bottom:16px;
-}
-.chip{
-  border:1.5px solid #111;
-  background:#fff;
-  border-radius:999px;
-  padding:8px 12px;
-  font:700 11px var(--mono);
-  text-transform:uppercase;
-}
-.chip.active{background:#111;color:#fff}
-
-.section-grid{
-  display:grid;
-  grid-template-columns:1.45fr .8fr;
-  gap:18px;
-}
-.note-stack{
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-}
-.paper-card{
-  position:relative;
-  border:1.5px solid #111;
-  border-radius:14px;
-  padding:14px 16px;
-  background:rgba(255,255,255,.84);
-  box-shadow:0 6px 12px rgba(0,0,0,.05);
-}
-.paper-card h4{
-  margin:0 0 6px 0;
-  font-size:18px;
-  text-transform:uppercase;
-}
-.paper-card .mini{
-  font:700 10px var(--mono);
-  color:var(--muted);
-  text-transform:uppercase;
-}
-.entry{
-  margin-bottom:16px;
-}
-.entry:last-child{margin-bottom:0}
-.entry-head{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  align-items:flex-start;
-  margin-bottom:10px;
-}
-.entry-date{
-  font:700 11px var(--mono);
-  text-transform:uppercase;
-  color:#444;
-}
-.entry-title{
-  font-size:22px;
-  text-transform:uppercase;
-  margin-top:3px;
-}
-.badges{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  justify-content:flex-end;
-}
-.badge{
-  padding:6px 8px;
-  border:1px solid #111;
-  border-radius:999px;
-  background:#fff;
-  font:700 9px var(--mono);
-  text-transform:uppercase;
-}
-.note{
-  margin:8px 0;
-  padding:9px 10px;
-  border-left:3px solid #111;
-  background:#f2f2f0;
-  line-height:1.45;
-  font-size:13px;
-}
-.exercise{
-  padding:10px 0;
-  border-bottom:1px dashed #777;
-}
-.exercise:last-child{border-bottom:none}
-.exercise-name{
-  font-weight:700;
-  text-transform:uppercase;
-}
-.sets{
-  margin-top:5px;
-  font:700 12px/1.7 var(--mono);
-  color:#222;
-}
-.summary-grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-}
-.summary-box{
-  border:1px dashed #111;
-  border-radius:12px;
-  padding:12px;
-  background:rgba(255,255,255,.55);
-}
-.summary-box span{
-  display:block;
-  font:700 10px var(--mono);
-  text-transform:uppercase;
-  color:#666;
-}
-.summary-box strong{
-  display:block;
-  margin-top:6px;
-  font:700 20px var(--mono);
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2, minmax(0,1fr));
-  gap:14px;
-}
-.tile{
-  border:1.5px solid #111;
-  border-radius:14px;
-  background:rgba(255,255,255,.8);
-  padding:14px;
-}
-.tile .cat{
-  font:700 10px var(--mono);
-  text-transform:uppercase;
-  color:#555;
-}
-.tile h3{
-  margin:6px 0 6px 0;
-  font-size:19px;
-  text-transform:uppercase;
-}
-.tile strong{
-  display:block;
-  font:700 15px var(--mono);
-}
-.tile p{
-  margin:8px 0 0 0;
-  line-height:1.45;
-  color:#444;
-}
-.cond-list{
-  display:grid;
-  grid-template-columns:repeat(2, minmax(0,1fr));
-  gap:14px;
-}
-.cond{
-  border:1.5px solid #111;
-  border-radius:14px;
-  background:rgba(255,255,255,.8);
-  padding:14px;
-}
-.cond .date{
-  font:700 10px var(--mono);
-  text-transform:uppercase;
-  color:#555;
-}
-.cond h3{
-  margin:6px 0;
-  font-size:18px;
-  text-transform:uppercase;
-}
-.cond strong{
-  display:block;
-  font:700 13px var(--mono);
-}
-.empty{
-  border:1.5px dashed #666;
-  border-radius:14px;
-  padding:26px;
-  background:rgba(255,255,255,.65);
-  text-align:center;
-  color:#666;
-  font:700 12px var(--mono);
-  text-transform:uppercase;
-}
-.footerline{
-  position:absolute;
-  bottom:16px; left:92px; right:34px;
-  display:flex; justify-content:space-between; align-items:center;
-  font:700 11px var(--mono);
-  text-transform:uppercase;
-  color:#666;
-}
-.helptext{
-  font:700 11px var(--mono);
-  color:#666;
-  text-transform:uppercase;
-}
-.page-tabs-inline{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-}
-.inline-tab{
-  border:1.5px solid #111;
-  background:#fff;
-  border-radius:999px;
-  padding:8px 10px;
-  font:700 10px var(--mono);
-  text-transform:uppercase;
-}
-.inline-tab.active{background:#111;color:#fff}
-
-@media (max-width: 980px){
-  .book-wrap{flex-direction:column}
-  .tabs{flex-direction:row; padding-top:0; overflow:auto}
-  .tab{border-left:2px solid #111;border-radius:12px;min-width:120px}
-  .tab.active{transform:translateY(3px)}
-  .section-grid{grid-template-columns:1fr}
-  .grid, .cond-list{grid-template-columns:1fr}
-}
-@media (max-width: 720px){
-  .app{width:min(100%, calc(100% - 12px)); margin:10px auto}
-  .headerbar{flex-direction:column; align-items:flex-start}
-  .cover{padding:40px 22px 40px 74px}
-  .paper{padding:22px 16px 36px 82px}
-  .page-title{font-size:26px}
-  .cover h2{font-size:32px}
-  .cover-grid{grid-template-columns:1fr}
-  .formgrid{grid-template-columns:1fr}
-  .page-header{flex-direction:column}
-  .searchbar{min-width:0; max-width:none}
-  .summary-grid{grid-template-columns:1fr}
-  .footerline{left:82px; right:16px}
-  .spine{left:18px; width:36px}
-}
+:root{--ink:#101010;--paper:#fbfbf8;--line:#cfd2d4;--red:#d54c4c;--desk:#d7d6d1;--mono:"Courier New",monospace;--serif:"Times New Roman",serif}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}body{font-family:var(--serif);color:var(--ink);background:radial-gradient(circle at 18% 0,#eee 0,transparent 26%),linear-gradient(#d9d8d3,#cccac5)}
+button,input{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+.site{width:min(1260px,calc(100% - 16px));margin:8px auto 32px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 12px;border:1px solid #888;background:rgba(250,250,248,.9);box-shadow:0 5px 15px #0001}
+.brand{display:flex;gap:9px;align-items:center}.mark{width:34px;height:34px;border-radius:50%;background:#111;color:#fff;display:grid;place-items:center;font:700 12px var(--mono)}
+.brand b{font-size:17px;text-transform:uppercase;letter-spacing:.06em}.brand small{display:block;font:700 9px var(--mono);color:#666;text-transform:uppercase}
+.status{display:flex;gap:7px;align-items:center;font:700 10px var(--mono);color:#555;text-transform:uppercase}.dot{width:8px;height:8px;border-radius:50%;background:#888}.dot.live{background:#111;box-shadow:0 0 0 3px #0001}
+.btn{border:1.5px solid #111;background:#fff;color:#111;padding:8px 10px;font:700 10px var(--mono);text-transform:uppercase}.btn.black{background:#111;color:#fff}
+.stage{position:relative;margin-top:12px;min-height:785px}.tabs{position:absolute;right:-1px;top:88px;z-index:20;display:flex;flex-direction:column;gap:8px}.tab{width:126px;border:1.5px solid #111;border-right:0;border-radius:10px 0 0 10px;padding:10px 10px 10px 14px;background:#e8e8e3;text-align:left;font:700 10px var(--mono);text-transform:uppercase;box-shadow:-4px 4px 10px #0001}.tab.active{background:#fff;transform:translateX(-7px)}.tab small{display:block;margin-top:3px;color:#666;font-size:9px;text-transform:none}
+.book{width:calc(100% - 95px);max-width:1100px;margin:auto;position:relative;perspective:2200px;min-height:760px}.coverWrap,.spread{position:absolute;inset:0;min-height:760px;transition:opacity .28s ease,transform .55s cubic-bezier(.2,.7,.2,1);transform-origin:left center}.spread{opacity:0;pointer-events:none;transform:rotateY(-10deg) translateX(18px)}.spread.active{opacity:1;pointer-events:auto;transform:none;z-index:4}.coverWrap{z-index:5}.coverWrap.closed{opacity:0;pointer-events:none;transform:rotateY(-92deg);z-index:0}
+.cover{min-height:760px;position:relative;overflow:hidden;border:1px solid #111;border-radius:5px 15px 15px 5px;box-shadow:0 24px 60px #0004;background-color:#070707;background-image:repeating-radial-gradient(ellipse at 20% 30%,#fff 0 1px,#111 1px 6px,#fff 6px 8px,#111 8px 13px),repeating-radial-gradient(ellipse at 78% 67%,#111 0 2px,#fff 2px 4px,#111 4px 9px);background-size:170px 135px,190px 160px;background-blend-mode:difference}
+.cover:before{content:"";position:absolute;left:0;top:0;bottom:0;width:72px;background:#050505;box-shadow:7px 0 12px #0007}
+.label{position:relative;z-index:2;width:min(560px,calc(100% - 130px));margin:105px auto 0;background:#fff;border:4px double #111;padding:24px 28px 26px;text-align:center;box-shadow:0 8px 20px #0004}
+.label h1{margin:0;font:900 28px var(--mono);text-transform:uppercase;letter-spacing:.06em}.label h2{margin:5px 0 0;font:700 12px var(--mono);text-transform:uppercase;letter-spacing:.14em}
+.line{display:grid;grid-template-columns:100px 1fr;gap:10px;align-items:end;margin-top:16px;text-align:left}.line label{font:700 10px var(--mono);text-transform:uppercase}.line input{width:100%;border:0;border-bottom:2px solid #111;outline:0;padding:6px 3px;font:700 15px var(--mono);background:transparent}
+.coverBtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:20px}.msg{margin-top:12px;min-height:30px;color:#555;font:11px/1.4 var(--mono)}
+.coverFoot{position:absolute;left:94px;right:34px;bottom:28px;z-index:2;display:flex;justify-content:space-between;color:#fff;font:700 10px var(--mono);text-transform:uppercase;text-shadow:0 1px 2px #000}
+.open{min-height:760px;display:grid;grid-template-columns:1fr 1fr;position:relative;box-shadow:0 24px 60px #0004}.open:before{content:"";position:absolute;top:0;bottom:0;left:50%;width:18px;transform:translateX(-50%);background:linear-gradient(90deg,#0002,#fff9,#0002);z-index:8}
+.page{position:relative;min-height:760px;overflow:hidden;background:linear-gradient(to right,transparent 0 54px,var(--red) 54px 56px,transparent 56px),repeating-linear-gradient(180deg,var(--paper) 0 31px,var(--line) 31px 32px);border:1px solid #aaa}.page.left{border-radius:12px 0 0 12px;border-right:0}.page.right{border-radius:0 12px 12px 0;border-left:0}.content{position:relative;z-index:2;padding:33px 26px 54px 74px;min-height:760px}
+.title{margin:0;font:900 27px var(--mono);text-transform:uppercase}.sub{margin-top:4px;color:#555;font:700 10px var(--mono);text-transform:uppercase;letter-spacing:.1em}
+.tableHead,.indexRow{display:grid;grid-template-columns:1.1fr .8fr .55fr}.tableHead{margin-top:18px;border:2px solid #111;background:#fff}.tableHead span,.indexRow span{padding:7px 8px;border-right:1px solid #999;font:700 9px var(--mono);text-transform:uppercase}.tableHead span:last-child,.indexRow span:last-child{border-right:0}.indexRow{border:1px solid #777;border-top:0;background:#fffC}.indexRow:hover{background:#fff}.indexList{max-height:565px;overflow:auto}
+.search{width:100%;margin:14px 0 10px;border:1.5px solid #111;padding:11px 12px;background:#fff;font:14px var(--mono)}.chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}.chip{border:1px solid #111;background:#fff;padding:7px 9px;border-radius:999px;font:700 9px var(--mono);text-transform:uppercase}.chip.active{background:#111;color:#fff}
+.scroll{max-height:555px;overflow:auto;padding-right:3px}.entry{margin-bottom:13px;padding:12px;border:1.5px solid #111;background:#fffD}.entryTop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.date{font:700 10px var(--mono);color:#555;text-transform:uppercase}.entryTitle{font-size:20px;font-weight:700;text-transform:uppercase}.badges{display:flex;gap:5px;flex-wrap:wrap}.badge{border:1px solid #111;border-radius:999px;padding:4px 6px;font:700 8px var(--mono);text-transform:uppercase}.note{margin:6px 0;padding:7px 8px;border-left:3px solid #111;background:#f0f0ed;font-size:12px;line-height:1.4}.exercise{padding:7px 0;border-bottom:1px dashed #777}.exercise:last-child{border-bottom:0}.exercise b{text-transform:uppercase;font-size:13px}.sets{margin-top:3px;font:700 11px/1.6 var(--mono)}
+.tiles{display:grid;gap:10px;margin-top:14px;max-height:585px;overflow:auto}.tile{border:1.5px solid #111;background:#fffD;padding:11px}.tile .cat{font:700 9px var(--mono);text-transform:uppercase;color:#555}.tile h3{margin:4px 0;font-size:17px;text-transform:uppercase}.tile strong{font:700 12px var(--mono)}.tile p{margin:5px 0 0;font-size:12px;line-height:1.4;color:#444}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.stat{border:1.5px solid #111;background:#fffD;padding:12px}.stat span{display:block;font:700 9px var(--mono);text-transform:uppercase;color:#555}.stat strong{display:block;margin-top:5px;font:700 20px var(--mono)}
+.footer{position:absolute;left:74px;right:24px;bottom:15px;display:flex;justify-content:space-between;color:#666;font:700 9px var(--mono);text-transform:uppercase}
+.empty{border:1px dashed #777;background:#fffC;padding:20px;text-align:center;color:#666;font:700 10px var(--mono);text-transform:uppercase}
+.turns{position:absolute;left:50%;bottom:-22px;transform:translateX(-50%);z-index:30;display:flex;gap:8px}.turn{width:42px;height:42px;border-radius:50%;border:1.5px solid #111;background:#fff;font:900 18px var(--mono);box-shadow:0 5px 12px #0002}
+.corner{position:absolute;bottom:0;width:65px;height:65px;z-index:12;opacity:.5;background:linear-gradient(135deg,transparent 48%,#0002 49%,#fff 51%)}.corner.next{right:0}.corner.prev{left:0;transform:scaleX(-1)}.corner:hover{opacity:1}
+@media(max-width:900px){.stage{min-height:820px}.tabs{position:static;flex-direction:row;overflow:auto;margin-bottom:8px}.tab{min-width:118px;border-right:1.5px solid #111;border-radius:9px}.tab.active{transform:translateY(2px)}.book{width:100%}}
+@media(max-width:720px){.site{width:calc(100% - 8px);margin:4px auto 28px}.bar{flex-wrap:wrap}.open{display:block;min-height:780px}.open:before{display:none}.page{display:none;border:1px solid #aaa!important;border-radius:10px!important;min-height:780px}.page.mobileActive{display:block}.content{padding:24px 14px 52px 66px;min-height:780px}.cover{min-height:780px}.cover:before{width:48px}.label{width:calc(100% - 82px);margin:78px 18px 0 62px;padding:18px}.label h1{font-size:22px}.line{grid-template-columns:75px 1fr}.coverFoot{left:62px}.footer{left:66px;right:14px}.stats{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="headerbar">
-    <div class="brand">
-      <div class="badge-round">TJ</div>
-      <div>
-        <h1>Index</h1>
-        <small>TJ Training Journal</small>
-      </div>
-    </div>
-    <div class="statusline">
-      <span id="syncDot" class="statusdot"></span>
-      <span id="syncText">Not signed in</span>
-    </div>
-    <div class="header-actions">
-      <button id="signOutBtn" class="btn hidden">Sign out</button>
-    </div>
+<div class="site">
+  <div class="bar">
+    <div class="brand"><div class="mark">TJ</div><div><b>Index</b><small>Training Journal</small></div></div>
+    <div class="status"><span id="syncDot" class="dot"></span><span id="syncText">Not signed in</span></div>
+    <button id="signOutBtn" class="btn hidden">Sign out</button>
   </div>
 
-  <div class="book-wrap">
-    <aside class="tabs">
-      <button class="tab active" data-page="cover">Cover <span class="tiny">Login</span></button>
-      <button class="tab" data-page="journal">Journal <span class="tiny">Workouts</span></button>
-      <button class="tab" data-page="progress">Progress <span class="tiny">Benchmarks</span></button>
-      <button class="tab" data-page="conditioning">Conditioning <span class="tiny">Cardio</span></button>
-    </aside>
+  <div class="stage">
+    <nav class="tabs">
+      <button class="tab active" data-sec="cover">Cover<small>login</small></button>
+      <button class="tab" data-sec="journal">Workout Log<small>index + entries</small></button>
+      <button class="tab" data-sec="progress">Progress<small>benchmarks + weight</small></button>
+      <button class="tab" data-sec="conditioning">Conditioning<small>cardio history</small></button>
+    </nav>
 
-    <main class="book">
-      <div class="book-shadow"></div>
-      <div class="notebook">
-        <div class="spine"></div>
-
-        <section id="page-cover" class="page active">
-          <div class="cover">
-            <div class="cover-kicker">Composition Notebook • Private Archive</div>
+    <div class="book">
+      <section id="cover" class="coverWrap">
+        <div class="cover">
+          <div class="label">
+            <h1>Composition</h1>
             <h2>TJ Training Journal</h2>
-            <p>A cover page that works like your login page. Sign in, claim the archive once, then flip to the journal pages.</p>
-
-            <div class="cover-grid">
-              <div class="panel">
-                <h3>Access the notebook</h3>
-                <div class="meta">Supabase auth • private data</div>
-                <div class="formgrid">
-                  <div class="field">
-                    <label>Email</label>
-                    <input id="email" type="email" autocomplete="email" placeholder="you@example.com">
-                  </div>
-                  <div class="field">
-                    <label>Password</label>
-                    <input id="password" type="password" autocomplete="current-password" placeholder="Password">
-                  </div>
-                </div>
-                <div class="cover-actions">
-                  <button id="signInBtn" class="btn dark">Sign in</button>
-                  <button id="signUpBtn" class="btn">Create account</button>
-                  <button id="openJournalBtn" class="btn ghost">Open journal</button>
-                </div>
-                <div id="authMsg" class="cover-note">First time here? Create an account. Supabase may ask you to confirm your email before signing in.</div>
-              </div>
-
-              <div class="panel">
-                <h3>At a glance</h3>
-                <div class="cover-stats">
-                  <div class="statcard">
-                    <span>Workouts</span>
-                    <strong id="statWorkouts">—</strong>
-                  </div>
-                  <div class="statcard">
-                    <span>Logged sets</span>
-                    <strong id="statSets">—</strong>
-                  </div>
-                  <div class="statcard">
-                    <span>Latest weight</span>
-                    <strong id="statWeight">—</strong>
-                  </div>
-                  <div class="statcard">
-                    <span>Newest press</span>
-                    <strong id="statPress">—</strong>
-                  </div>
-                </div>
-              </div>
-
-              <div id="claimCard" class="panel hidden">
-                <h3>Claim imported archive</h3>
-                <div class="meta">One-time setup</div>
-                <div class="formgrid full">
-                  <div class="field">
-                    <label>Claim code</label>
-                    <input id="claimCode" placeholder="TJ-XXXXXXXXXXXX">
-                  </div>
-                </div>
-                <div class="cover-actions">
-                  <button id="claimBtn" class="btn dark">Claim journal</button>
-                </div>
-                <div id="claimMsg" class="cover-note">Use the one-time claim code you got in ChatGPT.</div>
-              </div>
-
-              <div class="panel">
-                <h3>Sections</h3>
-                <div class="meta">Tabbed pages</div>
-                <p style="margin-top:10px; line-height:1.6; color:rgba(255,255,255,.86)">
-                  <strong>Journal</strong> for workouts and search.<br>
-                  <strong>Progress</strong> for benchmarks and body weight.<br>
-                  <strong>Conditioning</strong> for cardio logs.
-                </p>
-              </div>
+            <div class="line"><label>Email</label><input id="email" type="email" autocomplete="email"></div>
+            <div class="line"><label>Password</label><input id="password" type="password" autocomplete="current-password"></div>
+            <div class="coverBtns">
+              <button id="signInBtn" class="btn black">Sign in</button>
+              <button id="signUpBtn" class="btn">Create account</button>
+              <button id="openBookBtn" class="btn">Open notebook</button>
             </div>
+            <div id="authMsg" class="msg">Sign in to load your private workout journal.</div>
           </div>
-        </section>
+          <div class="coverFoot"><span>Workout log • strength • conditioning</span><span>Private</span></div>
+        </div>
+      </section>
 
-        <section id="page-journal" class="page">
-          <div class="paper">
-            <div class="page-header">
-              <div>
-                <h2 class="page-title">Journal</h2>
-                <div class="page-sub">Workout entries • searchable archive</div>
+      <section id="journal" class="spread">
+        <div class="open">
+          <article class="page left mobileActive">
+            <div class="content">
+              <h2 class="title">Workout Index</h2><div class="sub">Session directory</div>
+              <div class="tableHead"><span>Date</span><span>Workout</span><span>Sets</span></div>
+              <div id="workoutIndex" class="indexList"><div class="empty">Sign in to load the index.</div></div>
+              <div class="footer"><span>Index</span><span id="indexCount">0 sessions</span></div>
+            </div><button class="corner prev" aria-label="previous page"></button>
+          </article>
+          <article class="page right">
+            <div class="content">
+              <h2 class="title">Training Log</h2><div class="sub">Searchable workout entries</div>
+              <input id="search" class="search" placeholder="Search date, workout, exercise, notes...">
+              <div class="chips"><button class="chip active" data-filter="all">All</button><button class="chip" data-filter="2026">2026</button><button class="chip" data-filter="historical">Historical</button></div>
+              <div id="journalList" class="scroll"><div class="empty">Sign in to load workouts.</div></div>
+              <div class="footer"><span>Workout Log</span><span id="journalCount">0 entries</span></div>
+            </div><button class="corner next" aria-label="next page"></button>
+          </article>
+        </div>
+      </section>
+
+      <section id="progress" class="spread">
+        <div class="open">
+          <article class="page left mobileActive">
+            <div class="content">
+              <h2 class="title">Progress</h2><div class="sub">Current + historical benchmarks</div>
+              <div id="benchmarkGrid" class="tiles"><div class="empty">Sign in to load benchmarks.</div></div>
+              <div class="footer"><span>Progress</span><span>Benchmarks</span></div>
+            </div><button class="corner prev" aria-label="previous page"></button>
+          </article>
+          <article class="page right">
+            <div class="content">
+              <h2 class="title">Body Weight</h2><div class="sub">Saved weigh-ins</div>
+              <div class="stats">
+                <div class="stat"><span>Workouts</span><strong id="statWorkouts">—</strong></div>
+                <div class="stat"><span>Logged sets</span><strong id="statSets">—</strong></div>
+                <div class="stat"><span>Latest weight</span><strong id="statWeight">—</strong></div>
+                <div class="stat"><span>Chest press</span><strong id="statPress">—</strong></div>
               </div>
-              <div class="page-tools">
-                <input id="search" class="searchbar" placeholder="Search date, focus, exercise, notes...">
-              </div>
-            </div>
+              <div id="weightGrid" class="tiles"></div>
+              <div class="footer"><span>Progress</span><span>Weight history</span></div>
+            </div><button class="corner next" aria-label="next page"></button>
+          </article>
+        </div>
+      </section>
 
-            <div class="filter-row">
-              <button class="chip active" data-filter="all">All</button>
-              <button class="chip" data-filter="2026">2026</button>
-              <button class="chip" data-filter="historical">Historical</button>
-            </div>
+      <section id="conditioning" class="spread">
+        <div class="open">
+          <article class="page left mobileActive">
+            <div class="content">
+              <h2 class="title">Conditioning Index</h2><div class="sub">Runs • incline • carries • bike</div>
+              <div class="tableHead"><span>Date</span><span>Activity</span><span>Distance</span></div>
+              <div id="conditioningIndex" class="indexList"><div class="empty">Sign in to load conditioning.</div></div>
+              <div class="footer"><span>Conditioning</span><span id="conditioningCount">0 entries</span></div>
+            </div><button class="corner prev" aria-label="previous page"></button>
+          </article>
+          <article class="page right">
+            <div class="content">
+              <h2 class="title">Cardio Log</h2><div class="sub">Historical conditioning entries</div>
+              <div id="conditioningList" class="tiles"><div class="empty">Sign in to load conditioning.</div></div>
+              <div class="footer"><span>Conditioning</span><span>Archive</span></div>
+            </div><button class="corner next" aria-label="next page"></button>
+          </article>
+        </div>
+      </section>
 
-            <div class="section-grid">
-              <div id="journalList">
-                <div class="empty">Sign in to load your journal.</div>
-              </div>
-              <aside class="note-stack">
-                <div class="paper-card">
-                  <h4>Notebook Index</h4>
-                  <div class="mini">Quick sections</div>
-                  <div class="page-tabs-inline" style="margin-top:10px">
-                    <button class="inline-tab active" data-page-jump="journal">Journal</button>
-                    <button class="inline-tab" data-page-jump="progress">Progress</button>
-                    <button class="inline-tab" data-page-jump="conditioning">Conditioning</button>
-                  </div>
-                </div>
-                <div class="paper-card">
-                  <h4>Current snapshot</h4>
-                  <div class="summary-grid" style="margin-top:10px">
-                    <div class="summary-box">
-                      <span>Total workouts</span>
-                      <strong id="sideWorkouts">—</strong>
-                    </div>
-                    <div class="summary-box">
-                      <span>Total sets</span>
-                      <strong id="sideSets">—</strong>
-                    </div>
-                    <div class="summary-box">
-                      <span>Recent weight</span>
-                      <strong id="sideWeight">—</strong>
-                    </div>
-                    <div class="summary-box">
-                      <span>Top chest press</span>
-                      <strong id="sidePress">—</strong>
-                    </div>
-                  </div>
-                </div>
-                <div class="paper-card">
-                  <h4>Search tip</h4>
-                  <div class="mini">Try “shoulders”, “leg day”, “160 lb”, “sauna”</div>
-                </div>
-              </aside>
-            </div>
-
-            <div class="footerline">
-              <span>Index • journal page</span>
-              <span id="journalPageCount">Ready</span>
-            </div>
-          </div>
-        </section>
-
-        <section id="page-progress" class="page">
-          <div class="paper">
-            <div class="page-header">
-              <div>
-                <h2 class="page-title">Progress</h2>
-                <div class="page-sub">Benchmarks • bodyweight history</div>
-              </div>
-              <div class="helptext">Track your trend, not just one workout</div>
-            </div>
-
-            <div class="paper-card" style="margin-bottom:16px">
-              <h4>Current + historical benchmarks</h4>
-              <div class="mini">Strength and conditioning reference points</div>
-            </div>
-            <div id="benchmarkGrid" class="grid">
-              <div class="empty">Sign in to load benchmarks.</div>
-            </div>
-
-            <div class="paper-card" style="margin:18px 0 16px 0">
-              <h4>Body weight history</h4>
-              <div class="mini">Saved weigh-ins</div>
-            </div>
-            <div id="weightGrid" class="grid"></div>
-
-            <div class="footerline">
-              <span>Index • progress page</span>
-              <span>Benchmarks + weight</span>
-            </div>
-          </div>
-        </section>
-
-        <section id="page-conditioning" class="page">
-          <div class="paper">
-            <div class="page-header">
-              <div>
-                <h2 class="page-title">Conditioning</h2>
-                <div class="page-sub">Cardio • treadmill • incline • benchmark WODs</div>
-              </div>
-              <div class="helptext">Historical conditioning archive</div>
-            </div>
-
-            <div id="conditioningList" class="cond-list">
-              <div class="empty">Sign in to load conditioning history.</div>
-            </div>
-
-            <div class="footerline">
-              <span>Index • conditioning page</span>
-              <span>Cardio archive</span>
-            </div>
-          </div>
-        </section>
-
-      </div>
-    </main>
+      <div class="turns"><button id="prevPage" class="turn">‹</button><button id="nextPage" class="turn">›</button></div>
+    </div>
   </div>
 </div>
 
 <script>
-const SUPABASE_URL = "https://lhotgvhifpijewfjmokp.supabase.co";
-const SUPABASE_KEY = "sb_publishable_SIPUIu2IpLJB7otOmeQcAw_8sbRuVeR";
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
-
-let DATA = {sessions:[],exercises:[],sets:[],benchmarks:[],conditioning:[],weights:[]};
-let activeFilter = "all";
-let currentPage = "cover";
-
-const esc = (s="") => String(s ?? "").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-
-const fmtLoad = r => {
-  if (r.unit === "bodyweight" || r.load_basis === "bodyweight") return `BW×${r.reps ?? ""}`;
-  if (r.load == null) return `${r.reps ?? ""} reps`;
-  const n = Number(r.load);
-  const load = Number.isInteger(n) ? n : n.toFixed(1);
-  let text = `${load}${r.unit==="lb" ? " lb" : r.unit ? ` ${r.unit}` : ""}×${r.reps ?? ""}`;
-  if (r.load_basis === "per hand") text += " / hand";
-  if (r.load_basis === "per side") text += " / side";
-  if (r.load_basis === "per arm") text += " / arm";
-  if ((r.set_type || "").toLowerCase() === "warm-up") text += " (warm-up)";
-  return text;
-};
-
-function openPage(page){
-  const oldPage = currentPage;
-  currentPage = page;
-
-  $$(".tab").forEach(t => t.classList.toggle("active", t.dataset.page === page));
-  $$(".inline-tab").forEach(t => t.classList.toggle("active", t.dataset.pageJump === page));
-
-  const oldEl = document.getElementById(`page-${oldPage}`);
-  const newEl = document.getElementById(`page-${page}`);
-  if (!newEl) return;
-
-  if (oldEl && oldEl !== newEl){
-    oldEl.classList.remove("active");
-    oldEl.classList.add("turn-out");
-    setTimeout(() => oldEl.classList.remove("turn-out"), 420);
-  }
-  newEl.classList.add("active");
-  if (page === "journal" && $("#search")) $("#search").focus({preventScroll:true});
-}
-
-$$(".tab").forEach(btn => btn.addEventListener("click", ()=>openPage(btn.dataset.page)));
-$$(".inline-tab").forEach(btn => btn.addEventListener("click", ()=>openPage(btn.dataset.pageJump)));
-$("#openJournalBtn").addEventListener("click", ()=>openPage("journal"));
-
-function groupedSession(session){
-  const exs = DATA.exercises
-    .filter(e => e.workout_id === session.id)
-    .sort((a,b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-  return exs.map(ex => ({
-    ...ex,
-    sets: DATA.sets
-      .filter(s => s.workout_exercise_id === ex.id)
-      .sort((a,b) => (a.set_number ?? 0) - (b.set_number ?? 0))
-  }));
-}
-
-function renderJournal(){
-  const q = ($("#search")?.value || "").trim().toLowerCase();
-  const rows = DATA.sessions.filter(x => {
-    const year = x.workout_date ? x.workout_date.slice(0,4) : "Historical";
-    if (activeFilter === "2026" && year !== "2026") return false;
-    if (activeFilter === "historical" && year === "2026") return false;
-    const exs = groupedSession(x);
-    const hay = [
-      x.date_label, x.focus, x.notes, x.warmup_cardio, x.recovery,
-      ...exs.map(z => z.name + " " + z.sets.map(fmtLoad).join(" "))
-    ].join(" ").toLowerCase();
-    return !q || hay.includes(q);
-  });
-
-  $("#journalPageCount").textContent = `${rows.length} entries`;
-
-  $("#journalList").innerHTML = rows.map(x => {
-    const exs = groupedSession(x);
-    const badges = [
-      x.duration_minutes ? `${Math.round(x.duration_minutes)} min` : null,
-      x.logged_sets ? `${x.logged_sets} sets` : null,
-      x.location
-    ].filter(Boolean).map(v => `<span class="badge">${esc(v)}</span>`).join("");
-
-    const notes = [
-      x.warmup_cardio ? `<div class="note"><b>Warm-up / cardio:</b> ${esc(x.warmup_cardio)}</div>` : "",
-      x.recovery ? `<div class="note"><b>Recovery:</b> ${esc(x.recovery)}</div>` : "",
-      x.notes ? `<div class="note"><b>Journal note:</b> ${esc(x.notes)}</div>` : ""
-    ].join("");
-
-    const exhtml = exs.map(ex => `
-      <div class="exercise">
-        <div class="exercise-name">${esc(ex.name)}</div>
-        <div class="sets">${ex.sets.map(fmtLoad).map(esc).join(" · ")}</div>
-      </div>
-    `).join("");
-
-    return `
-      <article class="paper-card entry">
-        <div class="entry-head">
-          <div>
-            <div class="entry-date">${esc(x.date_label || "")}</div>
-            <div class="entry-title">${esc(x.focus || "Workout Entry")}</div>
-          </div>
-          <div class="badges">${badges}</div>
-        </div>
-        ${notes}
-        ${exhtml || '<div class="empty">No detailed sets recorded.</div>'}
-      </article>
-    `;
-  }).join("") || '<div class="empty">No journal entries match your search.</div>';
-}
-
-function renderProgress(){
-  $("#benchmarkGrid").innerHTML = DATA.benchmarks.map(b => `
-    <article class="tile">
-      <div class="cat">${esc(b.category || "")}</div>
-      <h3>${esc(b.name || "")}</h3>
-      <strong>${esc(b.reference || "")}</strong>
-      <p>${esc(b.date_or_period || "")}${b.why_it_matters ? `<br>${esc(b.why_it_matters)}` : ""}</p>
-    </article>
-  `).join("") || '<div class="empty">No benchmarks yet.</div>';
-
-  $("#weightGrid").innerHTML = DATA.weights.map(w => `
-    <article class="tile">
-      <div class="cat">${esc(w.metric_date || "")}</div>
-      <h3>Body weight</h3>
-      <strong>${esc(w.weight_lb)} lb</strong>
-      <p>${esc(w.notes || "")}</p>
-    </article>
-  `).join("") || '<div class="empty">No weight entries yet.</div>';
-}
-
-function renderConditioning(){
-  $("#conditioningList").innerHTML = DATA.conditioning.map(c => {
-    const detail = [
-      c.duration_text,
-      c.distance_miles != null ? `${c.distance_miles} mi` : null,
-      c.incline_pct != null ? `${c.incline_pct}% incline` : null,
-      c.level_or_load
-    ].filter(Boolean).join(" • ");
-
-    return `
-      <article class="cond">
-        <div class="date">${esc(c.date_label || "")}</div>
-        <h3>${esc(c.activity || "")}</h3>
-        <strong>${esc(detail)}</strong>
-        ${c.notes ? `<p>${esc(c.notes)}</p>` : ""}
-      </article>
-    `;
-  }).join("") || '<div class="empty">No conditioning entries yet.</div>';
-}
-
-function renderStats(){
-  const workoutCount = DATA.sessions.length || "—";
-  const setCount = DATA.sets.length || "—";
-  const weightText = DATA.weights[0]?.weight_lb ? `${DATA.weights[0].weight_lb} lb` : "—";
-  const press = DATA.benchmarks.find(b => b.name === "Star Trac Chest Press");
-  const pressText = press?.reference || "—";
-
-  $("#statWorkouts").textContent = workoutCount;
-  $("#statSets").textContent = setCount;
-  $("#statWeight").textContent = weightText;
-  $("#statPress").textContent = pressText;
-
-  $("#sideWorkouts").textContent = workoutCount;
-  $("#sideSets").textContent = setCount;
-  $("#sideWeight").textContent = weightText;
-  $("#sidePress").textContent = pressText;
-}
-
-function renderAll(){
-  renderJournal();
-  renderProgress();
-  renderConditioning();
-  renderStats();
-}
-
-async function loadAll(){
-  $("#syncText").textContent = "Syncing journal...";
-  try{
-    const [s,e,sets,b,c,w] = await Promise.all([
-      db.from("workout_sessions").select("*").order("workout_date",{ascending:false, nullsFirst:false}),
-      db.from("workout_exercises").select("*").order("sort_order",{ascending:true}),
-      db.from("workout_sets").select("*").order("set_number",{ascending:true}),
-      db.from("benchmarks").select("*").eq("is_active", true),
-      db.from("conditioning_entries").select("*").order("activity_date",{ascending:false}),
-      db.from("body_metrics").select("*").order("metric_date",{ascending:false})
-    ]);
-    for (const r of [s,e,sets,b,c,w]) if (r.error) throw r.error;
-
-    DATA = {
-      sessions: s.data || [],
-      exercises: e.data || [],
-      sets: sets.data || [],
-      benchmarks: b.data || [],
-      conditioning: c.data || [],
-      weights: w.data || []
-    };
-
-    const claimed = DATA.sessions.length > 0;
-    $("#claimCard").classList.toggle("hidden", claimed);
-    $("#syncText").textContent = claimed ? `Live • ${DATA.sessions.length} workouts synced` : "Signed in • journal not claimed yet";
-    renderAll();
-  }catch(err){
-    $("#syncText").textContent = "Sync error";
-    $("#journalList").innerHTML = `<div class="empty">${esc(err.message || err)}</div>`;
-  }
-}
-
-async function setSessionUI(session){
-  const signed = !!session;
-  $("#signOutBtn").classList.toggle("hidden", !signed);
-  $("#syncDot").classList.toggle("live", signed);
-  $("#syncText").textContent = signed ? `Signed in • ${session.user.email}` : "Not signed in";
-  if (signed) await loadAll();
-}
-
-$("#search").addEventListener("input", renderJournal);
-$$(".chip").forEach(b => b.addEventListener("click", () => {
-  activeFilter = b.dataset.filter;
-  $$(".chip").forEach(x => x.classList.toggle("active", x === b));
-  renderJournal();
-}));
-
-$("#signInBtn").onclick = async () => {
-  $("#authMsg").textContent = "Signing in...";
-  const {error} = await db.auth.signInWithPassword({
-    email: $("#email").value.trim(),
-    password: $("#password").value
-  });
-  $("#authMsg").textContent = error ? error.message : "Signed in.";
-  if (!error) openPage("journal");
-};
-
-$("#signUpBtn").onclick = async () => {
-  $("#authMsg").textContent = "Creating account...";
-  const {data,error} = await db.auth.signUp({
-    email: $("#email").value.trim(),
-    password: $("#password").value
-  });
-  if (error) {
-    $("#authMsg").textContent = error.message;
-  } else {
-    $("#authMsg").textContent = data.session
-      ? "Account created and signed in."
-      : "Account created. Check your email to confirm it, then return here and sign in.";
-  }
-};
-
-$("#signOutBtn").onclick = async () => {
-  await db.auth.signOut();
-  location.reload();
-};
-
-$("#claimBtn").onclick = async () => {
-  $("#claimMsg").textContent = "Claiming imported journal...";
-  const code = $("#claimCode").value.trim().toUpperCase();
-  const {error} = await db.rpc("claim_my_fitness_journal", {p_claim_code: code});
-  if (error) {
-    $("#claimMsg").textContent = error.message;
-    return;
-  }
-  $("#claimMsg").textContent = "Journal connected.";
-  await loadAll();
-  openPage("journal");
-};
-
-db.auth.onAuthStateChange(async(_event, session) => {
-  await setSessionUI(session);
-});
-(async () => {
-  const {data:{session}} = await db.auth.getSession();
-  await setSessionUI(session);
-})();
+const SUPABASE_URL="https://lhotgvhifpijewfjmokp.supabase.co";
+const SUPABASE_KEY="sb_publishable_SIPUIu2IpLJB7otOmeQcAw_8sbRuVeR";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const sections=["cover","journal","progress","conditioning"];
+let sec=0,mobileRight=false,filter="all",selected=null;
+let D={sessions:[],exercises:[],sets:[],benchmarks:[],conditioning:[],weights:[]};
+const esc=(s="")=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function fmt(r){if(r.unit==="bodyweight"||r.load_basis==="bodyweight")return`BW×${r.reps??""}`;if(r.load==null)return`${r.reps??""} reps`;let n=Number(r.load),v=Number.isInteger(n)?n:n.toFixed(1),t=`${v}${r.unit==="lb"?" lb":r.unit?` ${r.unit}`:""}×${r.reps??""}`;if(r.load_basis==="per hand")t+=" / hand";if(r.load_basis==="per side")t+=" / side";if(r.load_basis==="per arm")t+=" / arm";if((r.set_type||"").toLowerCase()==="warm-up")t+=" (warm-up)";return t}
+function exs(s){return D.exercises.filter(e=>e.workout_id===s.id).sort((a,b)=>(a.sort_order??0)-(b.sort_order??0)).map(e=>({...e,sets:D.sets.filter(x=>x.workout_exercise_id===e.id).sort((a,b)=>(a.set_number??0)-(b.set_number??0))}))}
+function mobilePage(right){mobileRight=right;let a=$(".spread.active");if(!a)return;a.querySelectorAll(".page").forEach((p,i)=>p.classList.toggle("mobileActive",right?i===1:i===0))}
+function show(name){sec=sections.indexOf(name);$$(".tab").forEach(t=>t.classList.toggle("active",t.dataset.sec===name));$$(".spread").forEach(s=>s.classList.remove("active"));if(name==="cover")$("#cover").classList.remove("closed");else{$("#cover").classList.add("closed");$("#"+name).classList.add("active");mobilePage(false)}}
+function turn(d){if(innerWidth<=720&&sec>0){if(d>0&&!mobileRight){mobilePage(true);return}if(d<0&&mobileRight){mobilePage(false);return}}let n=Math.max(0,Math.min(sections.length-1,sec+d));if(n!==sec)show(sections[n])}
+$$(".tab").forEach(t=>t.onclick=()=>show(t.dataset.sec));$("#prevPage").onclick=()=>turn(-1);$("#nextPage").onclick=()=>turn(1);$$(".corner.next").forEach(b=>b.onclick=()=>turn(1));$$(".corner.prev").forEach(b=>b.onclick=()=>turn(-1));$("#openBookBtn").onclick=()=>show("journal");document.onkeydown=e=>{if(e.key==="ArrowRight")turn(1);if(e.key==="ArrowLeft")turn(-1)}
+let tx=null;document.addEventListener("touchstart",e=>tx=e.changedTouches[0].clientX,{passive:true});document.addEventListener("touchend",e=>{if(tx==null)return;let dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>55)turn(dx<0?1:-1);tx=null},{passive:true});
+function rows(){let q=($("#search")?.value||"").trim().toLowerCase();return D.sessions.filter(s=>{let y=s.workout_date?s.workout_date.slice(0,4):"Historical";if(filter==="2026"&&y!=="2026")return false;if(filter==="historical"&&y==="2026")return false;let h=[s.date_label,s.focus,s.notes,s.warmup_cardio,s.recovery,...exs(s).map(e=>e.name+" "+e.sets.map(fmt).join(" "))].join(" ").toLowerCase();return!q||h.includes(q)})}
+function card(s){let es=exs(s),bad=[s.duration_minutes?`${Math.round(s.duration_minutes)} min`:null,s.logged_sets?`${s.logged_sets} sets`:null].filter(Boolean).map(x=>`<span class="badge">${esc(x)}</span>`).join(""),notes=[s.warmup_cardio?`<div class="note"><b>Warm-up / cardio:</b> ${esc(s.warmup_cardio)}</div>`:"",s.recovery?`<div class="note"><b>Recovery:</b> ${esc(s.recovery)}</div>`:"",s.notes?`<div class="note"><b>Journal note:</b> ${esc(s.notes)}</div>`:""].join(""),body=es.map(e=>`<div class="exercise"><b>${esc(e.name)}</b><div class="sets">${e.sets.map(fmt).map(esc).join(" · ")}</div></div>`).join("");return`<article class="entry"><div class="entryTop"><div><div class="date">${esc(s.date_label||"")}</div><div class="entryTitle">${esc(s.focus||"Workout")}</div></div><div class="badges">${bad}</div></div>${notes}${body}</article>`}
+function renderJournal(){let r=rows();$("#indexCount").textContent=`${r.length} sessions`;$("#journalCount").textContent=`${r.length} entries`;$("#workoutIndex").innerHTML=r.map(s=>`<div class="indexRow" data-id="${s.id}"><span>${esc(s.date_label||"Undated")}</span><span>${esc(s.focus||"Workout")}</span><span>${esc(s.logged_sets??"—")}</span></div>`).join("")||'<div class="empty">No sessions match.</div>';$$(".indexRow[data-id]").forEach(x=>x.onclick=()=>{selected=x.dataset.id;renderJournal();if(innerWidth<=720)mobilePage(true)});let disp=r;if(selected){let f=r.find(s=>s.id===selected)||D.sessions.find(s=>s.id===selected);if(f)disp=[f]}$("#journalList").innerHTML=disp.map(card).join("")||'<div class="empty">No workouts match.</div>'}
+function renderProgress(){$("#benchmarkGrid").innerHTML=D.benchmarks.map(b=>`<div class="tile"><div class="cat">${esc(b.category||"")}</div><h3>${esc(b.name||"")}</h3><strong>${esc(b.reference||"")}</strong><p>${esc(b.date_or_period||"")}${b.why_it_matters?`<br>${esc(b.why_it_matters)}`:""}</p></div>`).join("")||'<div class="empty">No benchmarks.</div>';$("#weightGrid").innerHTML=D.weights.map(w=>`<div class="tile"><div class="cat">${esc(w.metric_date||"")}</div><h3>Body Weight</h3><strong>${esc(w.weight_lb)} lb</strong><p>${esc(w.notes||"")}</p></div>`).join("")||'<div class="empty">No weigh-ins.</div>';$("#statWorkouts").textContent=D.sessions.length||"—";$("#statSets").textContent=D.sets.length||"—";$("#statWeight").textContent=D.weights[0]?.weight_lb?`${D.weights[0].weight_lb} lb`:"—";let p=D.benchmarks.find(b=>b.name==="Star Trac Chest Press");$("#statPress").textContent=p?.reference||"—"}
+function renderConditioning(){$("#conditioningCount").textContent=`${D.conditioning.length} entries`;$("#conditioningIndex").innerHTML=D.conditioning.map(c=>`<div class="indexRow"><span>${esc(c.date_label||"")}</span><span>${esc(c.activity||"")}</span><span>${c.distance_miles!=null?esc(c.distance_miles+" mi"):"—"}</span></div>`).join("")||'<div class="empty">No conditioning.</div>';$("#conditioningList").innerHTML=D.conditioning.map(c=>{let detail=[c.duration_text,c.distance_miles!=null?`${c.distance_miles} mi`:null,c.incline_pct!=null?`${c.incline_pct}% incline`:null,c.level_or_load].filter(Boolean).join(" • ");return`<div class="tile"><div class="cat">${esc(c.date_label||"")}</div><h3>${esc(c.activity||"")}</h3><strong>${esc(detail)}</strong>${c.notes?`<p>${esc(c.notes)}</p>`:""}</div>`}).join("")||'<div class="empty">No conditioning.</div>'}
+function render(){renderJournal();renderProgress();renderConditioning()}
+async function load(){$("#syncText").textContent="Syncing journal...";try{let [s,e,set,b,c,w]=await Promise.all([db.from("workout_sessions").select("*").order("workout_date",{ascending:false,nullsFirst:false}),db.from("workout_exercises").select("*").order("sort_order",{ascending:true}),db.from("workout_sets").select("*").order("set_number",{ascending:true}),db.from("benchmarks").select("*").eq("is_active",true),db.from("conditioning_entries").select("*").order("activity_date",{ascending:false}),db.from("body_metrics").select("*").order("metric_date",{ascending:false})]);for(let r of[s,e,set,b,c,w])if(r.error)throw r.error;D={sessions:s.data||[],exercises:e.data||[],sets:set.data||[],benchmarks:b.data||[],conditioning:c.data||[],weights:w.data||[]};$("#syncText").textContent=`Live • ${D.sessions.length} workouts`;render()}catch(err){$("#syncText").textContent="Sync error";$("#authMsg").textContent=err.message||String(err)}}
+async function sessionUI(session){let on=!!session;$("#signOutBtn").classList.toggle("hidden",!on);$("#syncDot").classList.toggle("live",on);$("#syncText").textContent=on?`Signed in • ${session.user.email}`:"Not signed in";if(on){$("#authMsg").textContent="Signed in. Open the notebook.";await load()}}
+$("#search").oninput=()=>{selected=null;renderJournal()};$$(".chip").forEach(b=>b.onclick=()=>{filter=b.dataset.filter;selected=null;$$(".chip").forEach(x=>x.classList.toggle("active",x===b));renderJournal()});
+$("#signInBtn").onclick=async()=>{$("#authMsg").textContent="Signing in...";let{error}=await db.auth.signInWithPassword({email:$("#email").value.trim(),password:$("#password").value});$("#authMsg").textContent=error?error.message:"Signed in. Open the notebook.";if(!error)show("journal")};
+$("#signUpBtn").onclick=async()=>{$("#authMsg").textContent="Creating account...";let{data,error}=await db.auth.signUp({email:$("#email").value.trim(),password:$("#password").value});$("#authMsg").textContent=error?error.message:(data.session?"Account created and signed in.":"Account created. Check your email to confirm, then sign in.")};
+$("#signOutBtn").onclick=async()=>{await db.auth.signOut();location.reload()};
+db.auth.onAuthStateChange(async(_e,s)=>await sessionUI(s));(async()=>{let{data:{session}}=await db.auth.getSession();await sessionUI(session)})();
 </script>
 </body>
 </html>
