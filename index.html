@@ -3,177 +3,852 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#efe7d6">
+<meta name="theme-color" content="#111111">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="TJ Journal">
-<title>TJ Fitness Journal</title>
+<title>TJ Training Journal</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
-  --paper:#efe7d6;--paper2:#f8f2e6;--ink:#18212a;--muted:#68727b;
-  --rule:#d4c6ae;--accent:#963d2e;--blue:#214a63;--green:#45684b;
-  --shadow:0 16px 40px rgba(63,45,24,.13);--radius:18px
+  --bg:#d8d8d4;
+  --ink:#111;
+  --muted:#4f4f4f;
+  --line:#d6d6d6;
+  --rule:#d74343;
+  --paper:#fbfbf8;
+  --paper-shadow:#ecece7;
+  --cover:#101010;
+  --cover2:#262626;
+  --tab:#efefea;
+  --tab-active:#ffffff;
+  --accent:#111;
+  --success:#1d6f42;
+  --radius:22px;
+  --shadow:0 18px 40px rgba(0,0,0,.18);
+  --mono:"Courier New", ui-monospace, monospace;
+  --serif:"Times New Roman", Georgia, serif;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
+html,body{margin:0}
 body{
-  margin:0;color:var(--ink);font-family:Georgia,"Times New Roman",serif;
+  min-height:100vh;
   background:
-    linear-gradient(rgba(255,255,255,.36),rgba(255,255,255,.36)),
-    repeating-linear-gradient(0deg,var(--paper) 0,var(--paper) 31px,#e2d6c3 32px);
+    radial-gradient(circle at top left, rgba(255,255,255,.55), transparent 28%),
+    linear-gradient(180deg,#cfcfca 0%, #d9d9d4 40%, #d0d0cb 100%);
+  color:var(--ink);
+  font-family:var(--serif);
 }
 button,input{font:inherit}
 button{cursor:pointer}
 .hidden{display:none!important}
-.shell{width:min(980px,calc(100% - 24px));margin:auto;padding:16px 0 80px}
-.topbar{
-  position:sticky;top:8px;z-index:30;display:flex;align-items:center;justify-content:space-between;
-  gap:14px;padding:12px 14px;border:1px solid #cabba3;border-radius:16px;
-  background:rgba(248,242,230,.94);backdrop-filter:blur(14px);box-shadow:var(--shadow)
+
+.app{
+  width:min(1200px, calc(100% - 22px));
+  margin:22px auto;
 }
-.brand{display:flex;align-items:center;gap:10px}
-.monogram{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:#fff;font:700 14px ui-monospace,monospace}
-.brand h1{font-size:18px;margin:0}
-.brand small{display:block;margin-top:2px;color:var(--muted);font:11px ui-monospace,monospace}
-.nav{display:flex;gap:6px;overflow:auto}
-.nav button{border:0;background:transparent;padding:8px 10px;border-radius:10px;color:var(--muted);font:700 11px ui-monospace,monospace}
-.nav button.active{background:var(--ink);color:#fff}
-.card{background:rgba(248,242,230,.96);border:1px solid #cfbfa7;border-radius:var(--radius);box-shadow:var(--shadow)}
-.hero{margin:18px 0;display:grid;grid-template-columns:1.25fr .75fr;gap:14px}
-.hero-main{padding:25px}
-.kicker{font:700 11px ui-monospace,monospace;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
-.hero h2{font-size:38px;line-height:1.02;margin:8px 0 12px}
-.hero p{margin:0;line-height:1.5;color:#4f5962}
-.snapshot{padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.stat{padding:12px;border:1px dashed #c7b69d;border-radius:12px;background:rgba(255,255,255,.24)}
-.stat span{display:block;color:var(--muted);font:700 9px ui-monospace,monospace;text-transform:uppercase}
-.stat strong{display:block;margin-top:5px;font:700 20px ui-monospace,monospace}
-.syncbar{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0;padding:11px 13px;
-  border:1px solid #cbbba3;border-radius:13px;background:rgba(248,242,230,.96);font:700 11px ui-monospace,monospace
+
+.headerbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  margin-bottom:14px;
+  padding:10px 14px;
+  border:2px solid #111;
+  border-radius:14px;
+  background:rgba(255,255,255,.66);
+  backdrop-filter: blur(8px);
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
 }
-.dot{width:8px;height:8px;border-radius:50%;display:inline-block;background:#9b9b9b;margin-right:7px}
-.dot.live{background:#4d8a55;box-shadow:0 0 0 4px rgba(77,138,85,.12)}
-.btn{border:1px solid #c6b59d;border-radius:11px;background:#f9f3e8;color:var(--ink);padding:9px 11px;font:700 11px ui-monospace,monospace}
-.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
-.btn.red{background:var(--accent);border-color:var(--accent);color:#fff}
-.auth-wrap{padding:18px;margin:12px 0}
-.auth-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:8px;align-items:end}
-.auth-grid label{font:700 9px ui-monospace,monospace;color:var(--muted);text-transform:uppercase}
-.auth-grid input{width:100%;margin-top:4px;border:1px solid #c7b69d;border-radius:10px;background:#fffaf1;padding:10px 11px}
-.auth-msg{margin-top:10px;color:var(--muted);font:11px/1.45 ui-monospace,monospace}
-.claim{padding:18px;margin:12px 0;border:1px dashed var(--accent)}
-.claim-row{display:flex;gap:8px;margin-top:10px}
-.claim-row input{flex:1;border:1px solid #c7b69d;border-radius:10px;background:#fffaf1;padding:10px 11px;font:700 12px ui-monospace,monospace;text-transform:uppercase}
-.view{display:none}.view.active{display:block}
-.controls{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
-.search{flex:1;min-width:220px;border:1px solid #c7b69d;border-radius:11px;background:#fffaf1;padding:10px 11px}
-.chip{border:1px solid #c7b69d;border-radius:999px;background:#f8f1e5;padding:8px 10px;color:var(--muted);font:700 10px ui-monospace,monospace}
-.chip.active{background:var(--blue);color:#fff;border-color:var(--blue)}
-.year{margin:24px 4px 8px;color:var(--accent);font:700 12px ui-monospace,monospace;letter-spacing:.08em}
-.entry{margin:11px 0;overflow:hidden}
-.entry-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:15px 17px;border-bottom:1px solid var(--rule)}
-.entry-date{color:var(--accent);font:700 11px ui-monospace,monospace}
-.entry-title{font-size:23px;margin-top:4px}
-.badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
-.badge{padding:5px 8px;border:1px solid #c8b79f;border-radius:999px;background:#fbf6ec;color:var(--muted);font:700 9px ui-monospace,monospace}
-.entry-body{padding:15px 17px}
-.note{border-left:3px solid var(--accent);border-radius:0 8px 8px 0;background:#f4eadb;padding:8px 10px;color:#4c5660;line-height:1.45;font-size:13px;margin-bottom:7px}
-.note.green{border-left-color:var(--green)}
-.exercise{padding:10px 0;border-bottom:1px dashed #d4c5ad}.exercise:last-child{border-bottom:0}
-.exercise-name{font-weight:700}
-.sets{margin-top:4px;color:#253746;font:700 12px/1.6 ui-monospace,monospace}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
-.tile{padding:15px}
-.tile .cat{color:var(--accent);font:700 9px ui-monospace,monospace;text-transform:uppercase}
-.tile h3{margin:5px 0 4px;font-size:18px}
-.tile strong{font:700 15px ui-monospace,monospace;color:var(--blue)}
-.tile p{color:var(--muted);font-size:12px;line-height:1.45}
-.cond-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.cond{padding:14px}.cond .date{font:700 9px ui-monospace,monospace;color:var(--muted)}.cond h3{margin:6px 0;font-size:18px}.cond strong{font:700 13px ui-monospace,monospace;color:var(--blue)}
-.empty{padding:34px;text-align:center;color:var(--muted)}
-.footer{text-align:center;margin-top:28px;color:var(--muted);font:10px ui-monospace,monospace}
-@media(max-width:760px){
- .topbar{align-items:flex-start;flex-direction:column}
- .hero{grid-template-columns:1fr}.hero h2{font-size:31px}
- .auth-grid{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.cond-list{grid-template-columns:1fr}
- .entry-head{flex-direction:column}.badges{justify-content:flex-start}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.badge-round{
+  width:40px;height:40px;border-radius:50%;
+  display:grid;place-items:center;
+  background:#111;color:#fff;
+  font:700 13px var(--mono);
+}
+.brand h1{
+  margin:0;
+  font-size:20px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+.brand small{
+  display:block;
+  font:700 11px var(--mono);
+  color:var(--muted);
+  text-transform:uppercase;
+}
+.statusline{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font:700 11px var(--mono);
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.statusdot{
+  width:10px;height:10px;border-radius:50%;
+  background:#888;
+}
+.statusdot.live{background:var(--success); box-shadow:0 0 0 4px rgba(29,111,66,.14)}
+.header-actions{display:flex;gap:8px;align-items:center}
+
+.btn{
+  border:1.5px solid #111;
+  background:#fff;
+  color:#111;
+  padding:10px 12px;
+  border-radius:10px;
+  font:700 11px var(--mono);
+  text-transform:uppercase;
+}
+.btn.dark{background:#111;color:#fff}
+.btn.ghost{background:transparent}
+.btn.small{padding:8px 10px;font-size:10px}
+
+.book-wrap{
+  position:relative;
+  display:flex;
+  gap:16px;
+  align-items:flex-start;
+}
+.tabs{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding-top:40px;
+}
+.tab{
+  width:118px;
+  padding:12px 12px 12px 16px;
+  border:2px solid #111;
+  border-left:none;
+  border-radius:0 12px 12px 0;
+  background:var(--tab);
+  font:700 11px var(--mono);
+  text-transform:uppercase;
+  text-align:left;
+  color:#333;
+  box-shadow:0 5px 12px rgba(0,0,0,.08);
+}
+.tab.active{
+  background:var(--tab-active);
+  transform:translateX(6px);
+}
+.tab .tiny{
+  display:block;
+  margin-top:4px;
+  font-size:10px;
+  color:#666;
+  text-transform:none;
+}
+
+.book{
+  flex:1;
+  min-height:820px;
+  position:relative;
+}
+.book-shadow{
+  position:absolute; inset:20px -10px -10px 20px;
+  background:rgba(0,0,0,.08);
+  filter:blur(22px);
+  border-radius:24px;
+}
+.notebook{
+  position:relative;
+  min-height:820px;
+  border-radius:24px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.spine{
+  position:absolute;
+  top:0; bottom:0; left:26px;
+  width:40px;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 17px,
+      rgba(0,0,0,.55) 17px 20px,
+      transparent 20px 37px
+    );
+  z-index:4;
+  pointer-events:none;
+}
+
+.page{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  pointer-events:none;
+  transform-origin:left center;
+  transform:perspective(1500px) rotateY(-8deg) translateX(18px);
+  transition:opacity .33s ease, transform .42s ease;
+}
+.page.active{
+  opacity:1;
+  pointer-events:auto;
+  transform:perspective(1500px) rotateY(0deg) translateX(0);
+  z-index:2;
+}
+.page.turn-out{
+  opacity:0;
+  transform:perspective(1500px) rotateY(10deg) translateX(-8px);
+}
+
+.cover{
+  position:absolute; inset:0;
+  padding:58px 46px 50px 86px;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(255,255,255,.08), transparent 16%),
+    radial-gradient(circle at 80% 80%, rgba(255,255,255,.05), transparent 20%),
+    linear-gradient(145deg,var(--cover2),var(--cover));
+  color:#fff;
+}
+.cover::before{
+  content:"";
+  position:absolute; inset:18px;
+  border:2px solid rgba(255,255,255,.22);
+  border-radius:16px;
+}
+.cover h2{
+  margin:0 0 4px 0;
+  font-size:44px;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.cover p{
+  margin:0;
+  color:rgba(255,255,255,.8);
+  line-height:1.6;
+}
+.cover-kicker{
+  font:700 12px var(--mono);
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.7);
+  margin-bottom:18px;
+}
+.cover-grid{
+  margin-top:28px;
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  gap:18px;
+}
+.panel{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:16px;
+  padding:18px;
+  backdrop-filter: blur(6px);
+}
+.panel h3{
+  margin:0 0 10px 0;
+  font-size:18px;
+  text-transform:uppercase;
+}
+.panel .meta{
+  font:700 11px var(--mono);
+  color:rgba(255,255,255,.78);
+  text-transform:uppercase;
+}
+.formgrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
+.formgrid.full{
+  grid-template-columns:1fr;
+}
+.field label{
+  display:block;
+  font:700 10px var(--mono);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  margin-bottom:6px;
+  color:rgba(255,255,255,.8);
+}
+.field input{
+  width:100%;
+  padding:12px 12px;
+  border-radius:10px;
+  border:1.5px solid rgba(255,255,255,.24);
+  background:rgba(255,255,255,.95);
+  color:#111;
+}
+.cover-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+.cover-note{
+  margin-top:12px;
+  font:12px/1.5 var(--mono);
+  color:rgba(255,255,255,.74);
+}
+.cover-stats{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.statcard{
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.07);
+  border-radius:14px;
+  padding:12px;
+}
+.statcard span{
+  display:block;
+  font:700 10px var(--mono);
+  text-transform:uppercase;
+  color:rgba(255,255,255,.72);
+}
+.statcard strong{
+  display:block;
+  margin-top:6px;
+  font:700 23px var(--mono);
+  color:#fff;
+}
+
+.paper{
+  position:absolute; inset:0;
+  padding:38px 34px 44px 92px;
+  background:
+    linear-gradient(to right, transparent 0 74px, rgba(215,67,67,.95) 74px 76px, transparent 76px 100%),
+    repeating-linear-gradient(
+      180deg,
+      var(--paper) 0 34px,
+      var(--line) 34px 35px
+    );
+  background-color:var(--paper);
+}
+.paper::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg, rgba(0,0,0,.04), transparent 9%, transparent 92%, rgba(0,0,0,.03));
+  pointer-events:none;
+}
+.page-header{
+  position:relative;
+  z-index:1;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:22px;
+}
+.page-title{
+  font-size:34px;
+  line-height:1;
+  margin:0;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+}
+.page-sub{
+  font:700 11px var(--mono);
+  color:var(--muted);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  margin-top:5px;
+}
+.page-tools{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.searchbar{
+  min-width:min(320px, 100%);
+  max-width:420px;
+  width:100%;
+  padding:12px 14px;
+  border:1.5px solid #111;
+  border-radius:12px;
+  background:#fff;
+  font-size:16px;
+}
+.filter-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+}
+.chip{
+  border:1.5px solid #111;
+  background:#fff;
+  border-radius:999px;
+  padding:8px 12px;
+  font:700 11px var(--mono);
+  text-transform:uppercase;
+}
+.chip.active{background:#111;color:#fff}
+
+.section-grid{
+  display:grid;
+  grid-template-columns:1.45fr .8fr;
+  gap:18px;
+}
+.note-stack{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.paper-card{
+  position:relative;
+  border:1.5px solid #111;
+  border-radius:14px;
+  padding:14px 16px;
+  background:rgba(255,255,255,.84);
+  box-shadow:0 6px 12px rgba(0,0,0,.05);
+}
+.paper-card h4{
+  margin:0 0 6px 0;
+  font-size:18px;
+  text-transform:uppercase;
+}
+.paper-card .mini{
+  font:700 10px var(--mono);
+  color:var(--muted);
+  text-transform:uppercase;
+}
+.entry{
+  margin-bottom:16px;
+}
+.entry:last-child{margin-bottom:0}
+.entry-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+  margin-bottom:10px;
+}
+.entry-date{
+  font:700 11px var(--mono);
+  text-transform:uppercase;
+  color:#444;
+}
+.entry-title{
+  font-size:22px;
+  text-transform:uppercase;
+  margin-top:3px;
+}
+.badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  justify-content:flex-end;
+}
+.badge{
+  padding:6px 8px;
+  border:1px solid #111;
+  border-radius:999px;
+  background:#fff;
+  font:700 9px var(--mono);
+  text-transform:uppercase;
+}
+.note{
+  margin:8px 0;
+  padding:9px 10px;
+  border-left:3px solid #111;
+  background:#f2f2f0;
+  line-height:1.45;
+  font-size:13px;
+}
+.exercise{
+  padding:10px 0;
+  border-bottom:1px dashed #777;
+}
+.exercise:last-child{border-bottom:none}
+.exercise-name{
+  font-weight:700;
+  text-transform:uppercase;
+}
+.sets{
+  margin-top:5px;
+  font:700 12px/1.7 var(--mono);
+  color:#222;
+}
+.summary-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+.summary-box{
+  border:1px dashed #111;
+  border-radius:12px;
+  padding:12px;
+  background:rgba(255,255,255,.55);
+}
+.summary-box span{
+  display:block;
+  font:700 10px var(--mono);
+  text-transform:uppercase;
+  color:#666;
+}
+.summary-box strong{
+  display:block;
+  margin-top:6px;
+  font:700 20px var(--mono);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+  gap:14px;
+}
+.tile{
+  border:1.5px solid #111;
+  border-radius:14px;
+  background:rgba(255,255,255,.8);
+  padding:14px;
+}
+.tile .cat{
+  font:700 10px var(--mono);
+  text-transform:uppercase;
+  color:#555;
+}
+.tile h3{
+  margin:6px 0 6px 0;
+  font-size:19px;
+  text-transform:uppercase;
+}
+.tile strong{
+  display:block;
+  font:700 15px var(--mono);
+}
+.tile p{
+  margin:8px 0 0 0;
+  line-height:1.45;
+  color:#444;
+}
+.cond-list{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+  gap:14px;
+}
+.cond{
+  border:1.5px solid #111;
+  border-radius:14px;
+  background:rgba(255,255,255,.8);
+  padding:14px;
+}
+.cond .date{
+  font:700 10px var(--mono);
+  text-transform:uppercase;
+  color:#555;
+}
+.cond h3{
+  margin:6px 0;
+  font-size:18px;
+  text-transform:uppercase;
+}
+.cond strong{
+  display:block;
+  font:700 13px var(--mono);
+}
+.empty{
+  border:1.5px dashed #666;
+  border-radius:14px;
+  padding:26px;
+  background:rgba(255,255,255,.65);
+  text-align:center;
+  color:#666;
+  font:700 12px var(--mono);
+  text-transform:uppercase;
+}
+.footerline{
+  position:absolute;
+  bottom:16px; left:92px; right:34px;
+  display:flex; justify-content:space-between; align-items:center;
+  font:700 11px var(--mono);
+  text-transform:uppercase;
+  color:#666;
+}
+.helptext{
+  font:700 11px var(--mono);
+  color:#666;
+  text-transform:uppercase;
+}
+.page-tabs-inline{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.inline-tab{
+  border:1.5px solid #111;
+  background:#fff;
+  border-radius:999px;
+  padding:8px 10px;
+  font:700 10px var(--mono);
+  text-transform:uppercase;
+}
+.inline-tab.active{background:#111;color:#fff}
+
+@media (max-width: 980px){
+  .book-wrap{flex-direction:column}
+  .tabs{flex-direction:row; padding-top:0; overflow:auto}
+  .tab{border-left:2px solid #111;border-radius:12px;min-width:120px}
+  .tab.active{transform:translateY(3px)}
+  .section-grid{grid-template-columns:1fr}
+  .grid, .cond-list{grid-template-columns:1fr}
+}
+@media (max-width: 720px){
+  .app{width:min(100%, calc(100% - 12px)); margin:10px auto}
+  .headerbar{flex-direction:column; align-items:flex-start}
+  .cover{padding:40px 22px 40px 74px}
+  .paper{padding:22px 16px 36px 82px}
+  .page-title{font-size:26px}
+  .cover h2{font-size:32px}
+  .cover-grid{grid-template-columns:1fr}
+  .formgrid{grid-template-columns:1fr}
+  .page-header{flex-direction:column}
+  .searchbar{min-width:0; max-width:none}
+  .summary-grid{grid-template-columns:1fr}
+  .footerline{left:82px; right:16px}
+  .spine{left:18px; width:36px}
 }
 </style>
 </head>
 <body>
-<div class="shell">
-  <header class="topbar">
-    <div class="brand"><div class="monogram">TJ</div><div><h1>TJ Fitness Journal</h1><small>Supabase-backed training archive</small></div></div>
-    <nav class="nav">
-      <button class="active" data-view="journal">Journal</button>
-      <button data-view="progress">Progress</button>
-      <button data-view="conditioning">Conditioning</button>
-    </nav>
-  </header>
-
-  <section class="hero">
-    <article class="card hero-main">
-      <div class="kicker">Current chapter</div>
-      <h2>Build muscle.<br>Lose fat.<br>Keep showing up.</h2>
-      <p>Your workout journal is stored in Supabase now. New sessions can be added to the database without rebuilding this file.</p>
-    </article>
-    <article class="card snapshot">
-      <div class="stat"><span>Workouts</span><strong id="statWorkouts">—</strong></div>
-      <div class="stat"><span>Logged sets</span><strong id="statSets">—</strong></div>
-      <div class="stat"><span>Latest weight</span><strong id="statWeight">—</strong></div>
-      <div class="stat"><span>Newest press</span><strong id="statPress">—</strong></div>
-    </article>
-  </section>
-
-  <div class="syncbar">
-    <div><span id="syncDot" class="dot"></span><span id="syncText">Not signed in</span></div>
-    <button id="signOutBtn" class="btn hidden">Sign out</button>
+<div class="app">
+  <div class="headerbar">
+    <div class="brand">
+      <div class="badge-round">TJ</div>
+      <div>
+        <h1>Index</h1>
+        <small>TJ Training Journal</small>
+      </div>
+    </div>
+    <div class="statusline">
+      <span id="syncDot" class="statusdot"></span>
+      <span id="syncText">Not signed in</span>
+    </div>
+    <div class="header-actions">
+      <button id="signOutBtn" class="btn hidden">Sign out</button>
+    </div>
   </div>
 
-  <section id="authCard" class="card auth-wrap">
-    <div class="kicker">Private access</div>
-    <h3 style="margin:6px 0 12px">Sign in to your journal</h3>
-    <div class="auth-grid">
-      <div><label>Email</label><input id="email" type="email" autocomplete="email"></div>
-      <div><label>Password</label><input id="password" type="password" autocomplete="current-password"></div>
-      <button id="signInBtn" class="btn primary">Sign in</button>
-      <button id="signUpBtn" class="btn">Create account</button>
-    </div>
-    <div id="authMsg" class="auth-msg">First time: create an account. Supabase may ask you to confirm your email before signing in.</div>
-  </section>
+  <div class="book-wrap">
+    <aside class="tabs">
+      <button class="tab active" data-page="cover">Cover <span class="tiny">Login</span></button>
+      <button class="tab" data-page="journal">Journal <span class="tiny">Workouts</span></button>
+      <button class="tab" data-page="progress">Progress <span class="tiny">Benchmarks</span></button>
+      <button class="tab" data-page="conditioning">Conditioning <span class="tiny">Cardio</span></button>
+    </aside>
 
-  <section id="claimCard" class="card claim hidden">
-    <div class="kicker">One-time setup</div>
-    <h3 style="margin:6px 0">Connect the imported workout archive</h3>
-    <div style="color:var(--muted);font-size:13px;line-height:1.45">Enter the one-time claim code from ChatGPT. After this, the imported history belongs only to your signed-in account.</div>
-    <div class="claim-row"><input id="claimCode" placeholder="TJ-XXXXXXXXXXXX"><button id="claimBtn" class="btn red">Claim journal</button></div>
-    <div id="claimMsg" class="auth-msg"></div>
-  </section>
+    <main class="book">
+      <div class="book-shadow"></div>
+      <div class="notebook">
+        <div class="spine"></div>
 
-  <section id="journal" class="view active">
-    <div class="controls">
-      <input id="search" class="search" placeholder="Search date, focus, exercise…">
-      <button class="chip active" data-filter="all">All</button>
-      <button class="chip" data-filter="2026">2026</button>
-      <button class="chip" data-filter="historical">Historical</button>
-    </div>
-    <div id="journalList"><div class="card empty">Sign in to load your journal.</div></div>
-  </section>
+        <section id="page-cover" class="page active">
+          <div class="cover">
+            <div class="cover-kicker">Composition Notebook • Private Archive</div>
+            <h2>TJ Training Journal</h2>
+            <p>A cover page that works like your login page. Sign in, claim the archive once, then flip to the journal pages.</p>
 
-  <section id="progress" class="view">
-    <div class="year">CURRENT + HISTORICAL BENCHMARKS</div>
-    <div id="benchmarkGrid" class="grid"><div class="card empty">Sign in to load benchmarks.</div></div>
-    <div class="year">BODY WEIGHT HISTORY</div>
-    <div id="weightGrid" class="grid"></div>
-  </section>
+            <div class="cover-grid">
+              <div class="panel">
+                <h3>Access the notebook</h3>
+                <div class="meta">Supabase auth • private data</div>
+                <div class="formgrid">
+                  <div class="field">
+                    <label>Email</label>
+                    <input id="email" type="email" autocomplete="email" placeholder="you@example.com">
+                  </div>
+                  <div class="field">
+                    <label>Password</label>
+                    <input id="password" type="password" autocomplete="current-password" placeholder="Password">
+                  </div>
+                </div>
+                <div class="cover-actions">
+                  <button id="signInBtn" class="btn dark">Sign in</button>
+                  <button id="signUpBtn" class="btn">Create account</button>
+                  <button id="openJournalBtn" class="btn ghost">Open journal</button>
+                </div>
+                <div id="authMsg" class="cover-note">First time here? Create an account. Supabase may ask you to confirm your email before signing in.</div>
+              </div>
 
-  <section id="conditioning" class="view">
-    <div class="year">CARDIO + CONDITIONING ARCHIVE</div>
-    <div id="conditioningList" class="cond-list"><div class="card empty">Sign in to load conditioning history.</div></div>
-  </section>
+              <div class="panel">
+                <h3>At a glance</h3>
+                <div class="cover-stats">
+                  <div class="statcard">
+                    <span>Workouts</span>
+                    <strong id="statWorkouts">—</strong>
+                  </div>
+                  <div class="statcard">
+                    <span>Logged sets</span>
+                    <strong id="statSets">—</strong>
+                  </div>
+                  <div class="statcard">
+                    <span>Latest weight</span>
+                    <strong id="statWeight">—</strong>
+                  </div>
+                  <div class="statcard">
+                    <span>Newest press</span>
+                    <strong id="statPress">—</strong>
+                  </div>
+                </div>
+              </div>
 
-  <div class="footer">TJ Fitness Journal • private Supabase backend</div>
+              <div id="claimCard" class="panel hidden">
+                <h3>Claim imported archive</h3>
+                <div class="meta">One-time setup</div>
+                <div class="formgrid full">
+                  <div class="field">
+                    <label>Claim code</label>
+                    <input id="claimCode" placeholder="TJ-XXXXXXXXXXXX">
+                  </div>
+                </div>
+                <div class="cover-actions">
+                  <button id="claimBtn" class="btn dark">Claim journal</button>
+                </div>
+                <div id="claimMsg" class="cover-note">Use the one-time claim code you got in ChatGPT.</div>
+              </div>
+
+              <div class="panel">
+                <h3>Sections</h3>
+                <div class="meta">Tabbed pages</div>
+                <p style="margin-top:10px; line-height:1.6; color:rgba(255,255,255,.86)">
+                  <strong>Journal</strong> for workouts and search.<br>
+                  <strong>Progress</strong> for benchmarks and body weight.<br>
+                  <strong>Conditioning</strong> for cardio logs.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="page-journal" class="page">
+          <div class="paper">
+            <div class="page-header">
+              <div>
+                <h2 class="page-title">Journal</h2>
+                <div class="page-sub">Workout entries • searchable archive</div>
+              </div>
+              <div class="page-tools">
+                <input id="search" class="searchbar" placeholder="Search date, focus, exercise, notes...">
+              </div>
+            </div>
+
+            <div class="filter-row">
+              <button class="chip active" data-filter="all">All</button>
+              <button class="chip" data-filter="2026">2026</button>
+              <button class="chip" data-filter="historical">Historical</button>
+            </div>
+
+            <div class="section-grid">
+              <div id="journalList">
+                <div class="empty">Sign in to load your journal.</div>
+              </div>
+              <aside class="note-stack">
+                <div class="paper-card">
+                  <h4>Notebook Index</h4>
+                  <div class="mini">Quick sections</div>
+                  <div class="page-tabs-inline" style="margin-top:10px">
+                    <button class="inline-tab active" data-page-jump="journal">Journal</button>
+                    <button class="inline-tab" data-page-jump="progress">Progress</button>
+                    <button class="inline-tab" data-page-jump="conditioning">Conditioning</button>
+                  </div>
+                </div>
+                <div class="paper-card">
+                  <h4>Current snapshot</h4>
+                  <div class="summary-grid" style="margin-top:10px">
+                    <div class="summary-box">
+                      <span>Total workouts</span>
+                      <strong id="sideWorkouts">—</strong>
+                    </div>
+                    <div class="summary-box">
+                      <span>Total sets</span>
+                      <strong id="sideSets">—</strong>
+                    </div>
+                    <div class="summary-box">
+                      <span>Recent weight</span>
+                      <strong id="sideWeight">—</strong>
+                    </div>
+                    <div class="summary-box">
+                      <span>Top chest press</span>
+                      <strong id="sidePress">—</strong>
+                    </div>
+                  </div>
+                </div>
+                <div class="paper-card">
+                  <h4>Search tip</h4>
+                  <div class="mini">Try “shoulders”, “leg day”, “160 lb”, “sauna”</div>
+                </div>
+              </aside>
+            </div>
+
+            <div class="footerline">
+              <span>Index • journal page</span>
+              <span id="journalPageCount">Ready</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="page-progress" class="page">
+          <div class="paper">
+            <div class="page-header">
+              <div>
+                <h2 class="page-title">Progress</h2>
+                <div class="page-sub">Benchmarks • bodyweight history</div>
+              </div>
+              <div class="helptext">Track your trend, not just one workout</div>
+            </div>
+
+            <div class="paper-card" style="margin-bottom:16px">
+              <h4>Current + historical benchmarks</h4>
+              <div class="mini">Strength and conditioning reference points</div>
+            </div>
+            <div id="benchmarkGrid" class="grid">
+              <div class="empty">Sign in to load benchmarks.</div>
+            </div>
+
+            <div class="paper-card" style="margin:18px 0 16px 0">
+              <h4>Body weight history</h4>
+              <div class="mini">Saved weigh-ins</div>
+            </div>
+            <div id="weightGrid" class="grid"></div>
+
+            <div class="footerline">
+              <span>Index • progress page</span>
+              <span>Benchmarks + weight</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="page-conditioning" class="page">
+          <div class="paper">
+            <div class="page-header">
+              <div>
+                <h2 class="page-title">Conditioning</h2>
+                <div class="page-sub">Cardio • treadmill • incline • benchmark WODs</div>
+              </div>
+              <div class="helptext">Historical conditioning archive</div>
+            </div>
+
+            <div id="conditioningList" class="cond-list">
+              <div class="empty">Sign in to load conditioning history.</div>
+            </div>
+
+            <div class="footerline">
+              <span>Index • conditioning page</span>
+              <span>Cardio archive</span>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
 </div>
 
 <script>
@@ -183,143 +858,277 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
+
 let DATA = {sessions:[],exercises:[],sets:[],benchmarks:[],conditioning:[],weights:[]};
 let activeFilter = "all";
+let currentPage = "cover";
 
 const esc = (s="") => String(s ?? "").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+
 const fmtLoad = r => {
   if (r.unit === "bodyweight" || r.load_basis === "bodyweight") return `BW×${r.reps ?? ""}`;
   if (r.load == null) return `${r.reps ?? ""} reps`;
-  const n = Number(r.load); const load = Number.isInteger(n) ? n : n.toFixed(1);
-  let text = `${load}${r.unit==="lb"?" lb":r.unit?` ${r.unit}`:""}×${r.reps ?? ""}`;
-  if (r.load_basis==="per hand") text += " / hand";
-  if (r.load_basis==="per side") text += " / side";
-  if (r.load_basis==="per arm") text += " / arm";
-  if ((r.set_type||"").toLowerCase()==="warm-up") text += " (warm-up)";
+  const n = Number(r.load);
+  const load = Number.isInteger(n) ? n : n.toFixed(1);
+  let text = `${load}${r.unit==="lb" ? " lb" : r.unit ? ` ${r.unit}` : ""}×${r.reps ?? ""}`;
+  if (r.load_basis === "per hand") text += " / hand";
+  if (r.load_basis === "per side") text += " / side";
+  if (r.load_basis === "per arm") text += " / arm";
+  if ((r.set_type || "").toLowerCase() === "warm-up") text += " (warm-up)";
   return text;
 };
 
-$$(".nav button").forEach(b=>b.onclick=()=>{
-  $$(".nav button").forEach(x=>x.classList.toggle("active",x===b));
-  $$(".view").forEach(v=>v.classList.toggle("active",v.id===b.dataset.view));
-});
+function openPage(page){
+  const oldPage = currentPage;
+  currentPage = page;
 
-async function setSessionUI(session){
-  const signed = !!session;
-  $("#authCard").classList.toggle("hidden",signed);
-  $("#signOutBtn").classList.toggle("hidden",!signed);
-  $("#syncDot").classList.toggle("live",signed);
-  $("#syncText").textContent = signed ? `Signed in • ${session.user.email}` : "Not signed in";
-  if (signed) await loadAll();
-}
+  $$(".tab").forEach(t => t.classList.toggle("active", t.dataset.page === page));
+  $$(".inline-tab").forEach(t => t.classList.toggle("active", t.dataset.pageJump === page));
 
-async function loadAll(){
-  $("#syncText").textContent = "Syncing journal…";
-  try{
-    const [s,e,set,b,c,w] = await Promise.all([
-      db.from("workout_sessions").select("*").order("workout_date",{ascending:false,nullsFirst:false}),
-      db.from("workout_exercises").select("*").order("sort_order",{ascending:true}),
-      db.from("workout_sets").select("*").order("set_number",{ascending:true}),
-      db.from("benchmarks").select("*").eq("is_active",true),
-      db.from("conditioning_entries").select("*").order("activity_date",{ascending:false}),
-      db.from("body_metrics").select("*").order("metric_date",{ascending:false})
-    ]);
-    for(const r of [s,e,set,b,c,w]) if(r.error) throw r.error;
-    DATA = {sessions:s.data||[], exercises:e.data||[], sets:set.data||[], benchmarks:b.data||[], conditioning:c.data||[], weights:w.data||[]};
-    const claimed = DATA.sessions.length > 0;
-    $("#claimCard").classList.toggle("hidden",claimed);
-    $("#syncText").textContent = claimed ? `Live • ${DATA.sessions.length} workouts synced` : "Signed in • journal not claimed yet";
-    renderAll();
-  }catch(err){
-    $("#syncText").textContent = "Sync error";
-    $("#journalList").innerHTML = `<div class="card empty">${esc(err.message||err)}</div>`;
+  const oldEl = document.getElementById(`page-${oldPage}`);
+  const newEl = document.getElementById(`page-${page}`);
+  if (!newEl) return;
+
+  if (oldEl && oldEl !== newEl){
+    oldEl.classList.remove("active");
+    oldEl.classList.add("turn-out");
+    setTimeout(() => oldEl.classList.remove("turn-out"), 420);
   }
+  newEl.classList.add("active");
+  if (page === "journal" && $("#search")) $("#search").focus({preventScroll:true});
 }
+
+$$(".tab").forEach(btn => btn.addEventListener("click", ()=>openPage(btn.dataset.page)));
+$$(".inline-tab").forEach(btn => btn.addEventListener("click", ()=>openPage(btn.dataset.pageJump)));
+$("#openJournalBtn").addEventListener("click", ()=>openPage("journal"));
 
 function groupedSession(session){
-  const exs = DATA.exercises.filter(e=>e.workout_id===session.id).sort((a,b)=>a.sort_order-b.sort_order);
-  return exs.map(ex=>({
+  const exs = DATA.exercises
+    .filter(e => e.workout_id === session.id)
+    .sort((a,b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  return exs.map(ex => ({
     ...ex,
-    sets: DATA.sets.filter(s=>s.workout_exercise_id===ex.id).sort((a,b)=>a.set_number-b.set_number)
+    sets: DATA.sets
+      .filter(s => s.workout_exercise_id === ex.id)
+      .sort((a,b) => (a.set_number ?? 0) - (b.set_number ?? 0))
   }));
 }
 
 function renderJournal(){
-  const q = $("#search").value.trim().toLowerCase();
-  const rows = DATA.sessions.filter(x=>{
+  const q = ($("#search")?.value || "").trim().toLowerCase();
+  const rows = DATA.sessions.filter(x => {
     const year = x.workout_date ? x.workout_date.slice(0,4) : "Historical";
-    if(activeFilter==="2026" && year!=="2026") return false;
-    if(activeFilter==="historical" && year==="2026") return false;
-    const exs=groupedSession(x);
-    const hay=[x.date_label,x.focus,x.notes,x.warmup_cardio,x.recovery,...exs.map(z=>z.name+" "+z.sets.map(fmtLoad).join(" "))].join(" ").toLowerCase();
+    if (activeFilter === "2026" && year !== "2026") return false;
+    if (activeFilter === "historical" && year === "2026") return false;
+    const exs = groupedSession(x);
+    const hay = [
+      x.date_label, x.focus, x.notes, x.warmup_cardio, x.recovery,
+      ...exs.map(z => z.name + " " + z.sets.map(fmtLoad).join(" "))
+    ].join(" ").toLowerCase();
     return !q || hay.includes(q);
   });
-  let last="";
-  $("#journalList").innerHTML = rows.map(x=>{
-    const year=x.workout_date?x.workout_date.slice(0,4):"Historical";
-    const yh=year!==last?`<div class="year">${esc(year)}</div>`:""; last=year;
-    const exs=groupedSession(x);
-    const badges=[x.duration_minutes?`${Math.round(x.duration_minutes)} min`:null,x.logged_sets?`${x.logged_sets} sets`:null,x.location].filter(Boolean).map(v=>`<span class="badge">${esc(v)}</span>`).join("");
-    const notes=[
-      x.warmup_cardio?`<div class="note"><b>Warm-up / cardio:</b> ${esc(x.warmup_cardio)}</div>`:"",
-      x.recovery?`<div class="note green"><b>Recovery:</b> ${esc(x.recovery)}</div>`:"",
-      x.notes?`<div class="note"><b>Journal note:</b> ${esc(x.notes)}</div>`:""
+
+  $("#journalPageCount").textContent = `${rows.length} entries`;
+
+  $("#journalList").innerHTML = rows.map(x => {
+    const exs = groupedSession(x);
+    const badges = [
+      x.duration_minutes ? `${Math.round(x.duration_minutes)} min` : null,
+      x.logged_sets ? `${x.logged_sets} sets` : null,
+      x.location
+    ].filter(Boolean).map(v => `<span class="badge">${esc(v)}</span>`).join("");
+
+    const notes = [
+      x.warmup_cardio ? `<div class="note"><b>Warm-up / cardio:</b> ${esc(x.warmup_cardio)}</div>` : "",
+      x.recovery ? `<div class="note"><b>Recovery:</b> ${esc(x.recovery)}</div>` : "",
+      x.notes ? `<div class="note"><b>Journal note:</b> ${esc(x.notes)}</div>` : ""
     ].join("");
-    const exhtml=exs.map(ex=>`<div class="exercise"><div class="exercise-name">${esc(ex.name)}</div><div class="sets">${ex.sets.map(fmtLoad).map(esc).join(" · ")}</div></div>`).join("");
-    return yh+`<article class="card entry"><div class="entry-head"><div><div class="entry-date">${esc(x.date_label)}</div><div class="entry-title">${esc(x.focus)}</div></div><div class="badges">${badges}</div></div><div class="entry-body">${notes}${exhtml||'<div class="empty">No detailed sets recorded.</div>'}</div></article>`;
-  }).join("") || '<div class="card empty">No journal entries match.</div>';
+
+    const exhtml = exs.map(ex => `
+      <div class="exercise">
+        <div class="exercise-name">${esc(ex.name)}</div>
+        <div class="sets">${ex.sets.map(fmtLoad).map(esc).join(" · ")}</div>
+      </div>
+    `).join("");
+
+    return `
+      <article class="paper-card entry">
+        <div class="entry-head">
+          <div>
+            <div class="entry-date">${esc(x.date_label || "")}</div>
+            <div class="entry-title">${esc(x.focus || "Workout Entry")}</div>
+          </div>
+          <div class="badges">${badges}</div>
+        </div>
+        ${notes}
+        ${exhtml || '<div class="empty">No detailed sets recorded.</div>'}
+      </article>
+    `;
+  }).join("") || '<div class="empty">No journal entries match your search.</div>';
 }
 
 function renderProgress(){
-  $("#benchmarkGrid").innerHTML = DATA.benchmarks.map(b=>`<article class="card tile"><div class="cat">${esc(b.category)}</div><h3>${esc(b.name)}</h3><strong>${esc(b.reference)}</strong><p>${esc(b.date_or_period||"")}${b.why_it_matters?`<br>${esc(b.why_it_matters)}`:""}</p></article>`).join("") || '<div class="card empty">No benchmarks yet.</div>';
-  $("#weightGrid").innerHTML = DATA.weights.map(w=>`<article class="card tile"><div class="cat">${esc(w.metric_date)}</div><h3>Body weight</h3><strong>${esc(w.weight_lb)} lb</strong><p>${esc(w.notes||"")}</p></article>`).join("") || '<div class="card empty">No weight entries yet.</div>';
+  $("#benchmarkGrid").innerHTML = DATA.benchmarks.map(b => `
+    <article class="tile">
+      <div class="cat">${esc(b.category || "")}</div>
+      <h3>${esc(b.name || "")}</h3>
+      <strong>${esc(b.reference || "")}</strong>
+      <p>${esc(b.date_or_period || "")}${b.why_it_matters ? `<br>${esc(b.why_it_matters)}` : ""}</p>
+    </article>
+  `).join("") || '<div class="empty">No benchmarks yet.</div>';
+
+  $("#weightGrid").innerHTML = DATA.weights.map(w => `
+    <article class="tile">
+      <div class="cat">${esc(w.metric_date || "")}</div>
+      <h3>Body weight</h3>
+      <strong>${esc(w.weight_lb)} lb</strong>
+      <p>${esc(w.notes || "")}</p>
+    </article>
+  `).join("") || '<div class="empty">No weight entries yet.</div>';
 }
 
 function renderConditioning(){
-  $("#conditioningList").innerHTML = DATA.conditioning.map(c=>{
-    const detail=[c.duration_text,c.distance_miles!=null?`${c.distance_miles} mi`:null,c.incline_pct!=null?`${c.incline_pct}% incline`:null,c.level_or_load].filter(Boolean).join(" • ");
-    return `<article class="card cond"><div class="date">${esc(c.date_label)}</div><h3>${esc(c.activity)}</h3><strong>${esc(detail)}</strong>${c.notes?`<p>${esc(c.notes)}</p>`:""}</article>`;
-  }).join("") || '<div class="card empty">No conditioning entries yet.</div>';
+  $("#conditioningList").innerHTML = DATA.conditioning.map(c => {
+    const detail = [
+      c.duration_text,
+      c.distance_miles != null ? `${c.distance_miles} mi` : null,
+      c.incline_pct != null ? `${c.incline_pct}% incline` : null,
+      c.level_or_load
+    ].filter(Boolean).join(" • ");
+
+    return `
+      <article class="cond">
+        <div class="date">${esc(c.date_label || "")}</div>
+        <h3>${esc(c.activity || "")}</h3>
+        <strong>${esc(detail)}</strong>
+        ${c.notes ? `<p>${esc(c.notes)}</p>` : ""}
+      </article>
+    `;
+  }).join("") || '<div class="empty">No conditioning entries yet.</div>';
 }
 
 function renderStats(){
-  $("#statWorkouts").textContent=DATA.sessions.length||"—";
-  $("#statSets").textContent=DATA.sets.length||"—";
-  $("#statWeight").textContent=DATA.weights[0]?.weight_lb?`${DATA.weights[0].weight_lb} lb`:"—";
-  const press=DATA.benchmarks.find(b=>b.name==="Star Trac Chest Press");
-  $("#statPress").textContent=press?.reference||"—";
+  const workoutCount = DATA.sessions.length || "—";
+  const setCount = DATA.sets.length || "—";
+  const weightText = DATA.weights[0]?.weight_lb ? `${DATA.weights[0].weight_lb} lb` : "—";
+  const press = DATA.benchmarks.find(b => b.name === "Star Trac Chest Press");
+  const pressText = press?.reference || "—";
+
+  $("#statWorkouts").textContent = workoutCount;
+  $("#statSets").textContent = setCount;
+  $("#statWeight").textContent = weightText;
+  $("#statPress").textContent = pressText;
+
+  $("#sideWorkouts").textContent = workoutCount;
+  $("#sideSets").textContent = setCount;
+  $("#sideWeight").textContent = weightText;
+  $("#sidePress").textContent = pressText;
 }
-function renderAll(){renderJournal();renderProgress();renderConditioning();renderStats();}
 
-$("#search").addEventListener("input",renderJournal);
-$$(".chip").forEach(b=>b.onclick=()=>{
-  activeFilter=b.dataset.filter; $$(".chip").forEach(x=>x.classList.toggle("active",x===b)); renderJournal();
-});
+function renderAll(){
+  renderJournal();
+  renderProgress();
+  renderConditioning();
+  renderStats();
+}
 
-$("#signInBtn").onclick=async()=>{
-  $("#authMsg").textContent="Signing in…";
-  const {error}=await db.auth.signInWithPassword({email:$("#email").value.trim(),password:$("#password").value});
-  $("#authMsg").textContent=error?error.message:"Signed in.";
+async function loadAll(){
+  $("#syncText").textContent = "Syncing journal...";
+  try{
+    const [s,e,sets,b,c,w] = await Promise.all([
+      db.from("workout_sessions").select("*").order("workout_date",{ascending:false, nullsFirst:false}),
+      db.from("workout_exercises").select("*").order("sort_order",{ascending:true}),
+      db.from("workout_sets").select("*").order("set_number",{ascending:true}),
+      db.from("benchmarks").select("*").eq("is_active", true),
+      db.from("conditioning_entries").select("*").order("activity_date",{ascending:false}),
+      db.from("body_metrics").select("*").order("metric_date",{ascending:false})
+    ]);
+    for (const r of [s,e,sets,b,c,w]) if (r.error) throw r.error;
+
+    DATA = {
+      sessions: s.data || [],
+      exercises: e.data || [],
+      sets: sets.data || [],
+      benchmarks: b.data || [],
+      conditioning: c.data || [],
+      weights: w.data || []
+    };
+
+    const claimed = DATA.sessions.length > 0;
+    $("#claimCard").classList.toggle("hidden", claimed);
+    $("#syncText").textContent = claimed ? `Live • ${DATA.sessions.length} workouts synced` : "Signed in • journal not claimed yet";
+    renderAll();
+  }catch(err){
+    $("#syncText").textContent = "Sync error";
+    $("#journalList").innerHTML = `<div class="empty">${esc(err.message || err)}</div>`;
+  }
+}
+
+async function setSessionUI(session){
+  const signed = !!session;
+  $("#signOutBtn").classList.toggle("hidden", !signed);
+  $("#syncDot").classList.toggle("live", signed);
+  $("#syncText").textContent = signed ? `Signed in • ${session.user.email}` : "Not signed in";
+  if (signed) await loadAll();
+}
+
+$("#search").addEventListener("input", renderJournal);
+$$(".chip").forEach(b => b.addEventListener("click", () => {
+  activeFilter = b.dataset.filter;
+  $$(".chip").forEach(x => x.classList.toggle("active", x === b));
+  renderJournal();
+}));
+
+$("#signInBtn").onclick = async () => {
+  $("#authMsg").textContent = "Signing in...";
+  const {error} = await db.auth.signInWithPassword({
+    email: $("#email").value.trim(),
+    password: $("#password").value
+  });
+  $("#authMsg").textContent = error ? error.message : "Signed in.";
+  if (!error) openPage("journal");
 };
-$("#signUpBtn").onclick=async()=>{
-  $("#authMsg").textContent="Creating account…";
-  const {data,error}=await db.auth.signUp({email:$("#email").value.trim(),password:$("#password").value});
-  if(error) $("#authMsg").textContent=error.message;
-  else $("#authMsg").textContent=data.session?"Account created and signed in.":"Account created. Check your email to confirm it, then return here and sign in.";
-};
-$("#signOutBtn").onclick=async()=>{await db.auth.signOut(); location.reload();};
 
-$("#claimBtn").onclick=async()=>{
-  $("#claimMsg").textContent="Claiming imported journal…";
-  const code=$("#claimCode").value.trim().toUpperCase();
-  const {data,error}=await db.rpc("claim_my_fitness_journal",{p_claim_code:code});
-  if(error){$("#claimMsg").textContent=error.message;return;}
-  $("#claimMsg").textContent="Journal connected.";
+$("#signUpBtn").onclick = async () => {
+  $("#authMsg").textContent = "Creating account...";
+  const {data,error} = await db.auth.signUp({
+    email: $("#email").value.trim(),
+    password: $("#password").value
+  });
+  if (error) {
+    $("#authMsg").textContent = error.message;
+  } else {
+    $("#authMsg").textContent = data.session
+      ? "Account created and signed in."
+      : "Account created. Check your email to confirm it, then return here and sign in.";
+  }
+};
+
+$("#signOutBtn").onclick = async () => {
+  await db.auth.signOut();
+  location.reload();
+};
+
+$("#claimBtn").onclick = async () => {
+  $("#claimMsg").textContent = "Claiming imported journal...";
+  const code = $("#claimCode").value.trim().toUpperCase();
+  const {error} = await db.rpc("claim_my_fitness_journal", {p_claim_code: code});
+  if (error) {
+    $("#claimMsg").textContent = error.message;
+    return;
+  }
+  $("#claimMsg").textContent = "Journal connected.";
   await loadAll();
+  openPage("journal");
 };
 
-db.auth.onAuthStateChange(async(_event,session)=>{await setSessionUI(session)});
-(async()=>{const {data:{session}}=await db.auth.getSession();await setSessionUI(session)})();
+db.auth.onAuthStateChange(async(_event, session) => {
+  await setSessionUI(session);
+});
+(async () => {
+  const {data:{session}} = await db.auth.getSession();
+  await setSessionUI(session);
+})();
 </script>
 </body>
 </html>
